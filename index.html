@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card & Tag Manager</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --text-color: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --danger-color: #dc3545;
+            --accent-color: #e9ecef;
+            --sticky-offset: 48px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --surface-color: #343a40;
+            --text-color: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --border-color: #495057;
+            --primary-color: #375a7f;
+            --primary-hover: #2b4764;
+            --danger-color: #e74c3c;
+            --accent-color: #495057;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.2s, color 0.2s;
+            overflow-x: hidden;
+        }
+
+        /* Top Header Navigation */
+        header {
+            display: flex;
+            align-items: center;
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: 48px;
+            padding: 0 16px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            margin-right: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0 16px;
+            height: 100%;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        /* Side Sliding Menu */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            z-index: 200;
+            transition: left 0.3s ease;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .close-sidebar-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .menu-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu-section label {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--surface-color);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--surface-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+
+        .json-area {
+            font-family: monospace;
+            font-size: 12px;
+            height: 120px;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.4);
+            z-index: 150;
+            display: none;
+        }
+
+        .overlay.visible {
+            display: block;
+        }
+
+        /* Main App Views */
+        .tab-content {
+            display: none;
+            padding: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Collapsible Sections */
+        .collapsible-container {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            overflow: visible;
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            cursor: pointer;
+            user-select: none;
+            background-color: var(--surface-color);
+            border-radius: 6px;
+        }
+
+        .collapsible-title-zone {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .collapsible-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* stop propagation so clicking buttons doesn't toggle */
+        }
+
+        .collapsible-body {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            display: none;
+            background-color: var(--surface-color);
+        }
+
+        .collapsible-container.expanded .collapsible-body {
+            display: block;
+        }
+
+        /* Sticky overlay sections for Tag Management and Search List */
+        .sticky-wrapper {
+            position: sticky;
+            top: 48px;
+            z-index: 90;
+            background-color: var(--bg-color);
+            padding-bottom: 8px;
+        }
+
+        /* Dynamic Tags UI components */
+        .tag-form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pill-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+            min-height: 24px;
+        }
+
+        .pill {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .pill .close-x {
+            color: var(--text-secondary);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .pill .close-x:hover {
+            color: var(--danger-color);
+        }
+
+        .list-container {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .item-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .item-info h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .item-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Dropdown custom search picker */
+        .dropdown-picker-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-search-wrapper {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            z-index: 110;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            padding: 8px;
+        }
+
+        .dropdown-search-wrapper.show {
+            display: block;
+        }
+
+        .search-results-list {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .search-item-option {
+            padding: 6px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-item-option:hover {
+            background-color: var(--accent-color);
+        }
+
+        /* Cards Presentation Grid */
+        .cards-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .display-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .display-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        .display-card-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .display-card-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .display-card-tags {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .card-tag-row {
+            font-size: 13px;
+        }
+
+        .card-tag-key {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Animation Highlight for Surprise Me */
+        @keyframes highlightPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); border-color: var(--primary-color); }
+            50% { transform: scale(1.02); box-shadow: 0 0 15px 5px rgba(13, 110, 253, 0.5); border-color: var(--primary-color); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+        }
+
+        .surprise-highlight {
+            animation: highlightPulse 1.5s ease-in-out;
+        }
+
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <header>
+        <button class="menu-btn" id="sidebarToggleBtn">â˜°</button>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="searchView" id="tabSearchNav">Search</button>
+            <button class="tab-btn" data-tab="createCardView" id="tabCreateCardNav">Create Card</button>
+            <button class="tab-btn" data-tab="manageTagsView" id="tabManageTagsNav">Manage Tags</button>
+        </div>
+    </header>
+
+    <!-- Side Sliding Menu Drawer -->
+    <div class="overlay" id="menuOverlay"></div>
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h3 id="menuTitle">Menu</h3>
+            <button class="close-sidebar-btn" id="sidebarCloseBtn">âœ•</button>
+        </div>
+
+        <div class="menu-section">
+            <label id="lblLang">Language</label>
+            <select id="langSelect">
+                <option value="en">English</option>
+                <option value="hi">à¤¹à¤¿à¤¨à¥à¤¦à¥€ (Hindi)</option>
+            </select>
+        </div>
+
+        <div class="menu-section">
+            <label id="lblTheme">Theme</label>
+            <select id="themeSelect">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+            </select>
+        </div>
+
+        <div class="menu-section">
+            <label id="lblSession">Session State</label>
+            <div style="display:flex; gap:6px;">
+                <button class="btn" id="btnDownload" style="flex:1;">Download JSON</button>
+                <button class="btn" id="btnUpload" style="flex:1;">Upload JSON</button>
+            </div>
+            <input type="file" id="fileInput" class="hidden" accept=".json">
+        </div>
+
+        <div class="menu-section">
+            <label id="lblCopyReplace">Copy / Replace State Text</label>
+            <textarea class="json-area" id="jsonTextArea" placeholder='{"tags":{},"cards":[]}'></textarea>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+                <button class="btn" id="btnCopyJson" style="flex:1;">Copy</button>
+                <button class="btn" id="btnReplaceJson" style="flex:1;">Replace</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main>
+        
+        <!-- SECTION 3: Search Cards (Default View) -->
+        <div class="tab-content active" id="searchView">
+            <div class="sticky-wrapper">
+                <!-- Collapsible filter console -->
+                <div class="collapsible-container" id="searchFilterBox">
+                    <div class="collapsible-header" id="searchFilterHeader">
+                        <div class="collapsible-title-zone">
+                            <span class="toggle-icon">+</span>
+                            <span id="lblFilterTitle">Filters</span>
+                            <span class="indicator-dot hidden" id="filterIndicatorSearch"></span>
+                        </div>
+                        <div class="collapsible-actions">
+                            <button class="btn" id="btnSurpriseMe" style="padding:4px 8px; font-size:12px;">Surprise Me</button>
+                            <button class="btn" id="btnResetSearchFilters" style="padding:4px 8px; font-size:12px;">Reset</button>
+                        </div>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="dropdown-picker-container">
+                            <input type="text" id="searchFilterKeyPickerInput" placeholder="Click to filter by tag key...">
+                            <div class="dropdown-search-wrapper" id="searchFilterKeyDropdown">
+                                <input type="text" id="searchFilterInnerKeyQuery" placeholder="Type key name to search...">
+                                <div class="search-results-list" id="searchFilterKeyList"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Value selector box for chosen tag in search -->
+                        <div id="searchFilterValueSelectionBlock" class="hidden" style="margin-top:12px; border:1px solid var(--border-color); padding:10px; border-radius:4px;">
+                            <strong id="searchCurrentSelectingKeyText">Key: </strong>
+                            <div id="searchFilterValueOptionsWrapper" style="margin:8px 0; display:flex; flex-direction:column; gap:6px;"></div>
+                            <button class="btn btn-primary" id="btnApplySearchFilterValues">Apply Filter Values</button>
+                        </div>
+
+                        <!-- Active filter display tags summary list -->
+                        <div class="pill-container" id="activeSearchFiltersDisplayPills" style="margin-top:12px;"></div>
+                    </div>
+                </div>
+
+                <!-- Text search on names -->
+                <input type="text" id="txtSearchCardName" placeholder="Search cards by name...">
+            </div>
+
+            <!-- List display cards -->
+            <div class="cards-grid" id="cardsDisplayContainer"></div>
+        </div>
+
+        <!-- SECTION 2: Card Creation View -->
+        <div class="tab-content" id="createCardView">
+            <div style="display:flex; flex-direction:column; gap:16px; background-color:var(--surface-color); padding:16px; border-radius:6px; border:1px solid var(--border-color);">
+                <div class="form-row">
+                    <input type="text" id="txtCardName" placeholder="Card name">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="txtCardDesc" placeholder="Description (optional)">
+                </div>
+
+                <!-- Tag assignment selector -->
+                <div class="dropdown-picker-container">
+                    <input type="text" id="cardCreationTagPickerInput" placeholder="Choose Dynamic Tag key...">
+                    <div class="dropdown-search-wrapper" id="cardCreationTagDropdown">
+                        <input type="text" id="cardCreationInnerTagQuery" placeholder="Type tag name to search...">
+                        <div class="search-results-list" id="cardCreationTagResultsList"></div>
+                    </div>
+                </div>
+
+                <!-- Multi values picker area based on selected key selection -->
+                <div id="cardCreationValuePickContainer" class="hidden" style="border:1px solid var(--border-color); padding:12px; border-radius:4px;">
+                    <span id="lblSelectedCreationKeyText" style="font-weight:600;">Key: Name</span>
+                    <div id="cardCreationValueOptionsWrapper" style="margin:8px 0; display:flex; flex-direction:column; gap:6px;"></div>
+                    <button class="btn btn-primary" id="btnConfirmAddTagValuesToCard">Add Tag to Card</button>
+                </div>
+
+                <!-- Current tags applied to this card being edited -->
+                <div>
+                    <label style="font-size:12px; font-weight:600; color:var(--text-secondary);" id="lblAppliedTags">Applied Tags:</label>
+                    <div class="pill-container" id="cardCreationAppliedTagsPills"></div>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn btn-primary" id="btnSaveCard" style="flex:1;">Save Card</button>
+                    <button class="btn btn-danger" id="btnClearCardForm">Clear All</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: Manage Global Dynamic Tags View -->
+        <div class="tab-content" id="manageTagsView">
+            <div class="sticky-wrapper">
+                <div class="collapsible-container" id="manageTagsBox">
+                    <div class="collapsible-header" id="manageTagsHeader">
+                        <div class="collapsible-title-zone">
+                            <span class="toggle-icon">+</span>
+                            <span id="lblManageTagsTitle">Define / Edit Tags</span>
+                            <span class="indicator-dot hidden" id="filterIndicatorTags"></span>
+                        </div>
+                        <div class="collapsible-actions">
+                            <button class="btn" id="btnClearTagForm" style="padding:4px 8px; font-size:12px;">Clear</button>
+                        </div>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="tag-form-grid">
+                            <div class="form-row">
+                                <input type="text" id="txtTagNameKey" placeholder="Tag Key Name">
+                                <select id="selTagType" style="width:140px;">
+                                    <option value="single">Single Select</option>
+                                    <option value="multi">Multi Select</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <input type="text" id="txtTagValueInput" placeholder="Add value option...">
+                                <button class="btn btn-primary" id="btnAddTagValueOption">Add</button>
+                            </div>
+                            <div class="pill-container" id="tagValueOptionsAccumulatorPills"></div>
+                            <button class="btn btn-primary" id="btnSaveGlobalTag" style="margin-top:8px;">Save Tag Key</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search box to filter tag key card list below -->
+                <input type="text" id="txtSearchGlobalTagsName" placeholder="Search tag keys by name...">
+            </div>
+
+            <!-- List display of defined global tags -->
+            <div class="list-container" id="globalTagsDisplayList"></div>
+        </div>
+
+    </main>
+
+    <script>
+        // Global App State
+        let appState = {
+            tags: {},   // format: {"Priority": {type: "single", values: ["High", "Medium"]}, ...}
+            cards: []   // format: [{id: "card_123", name: "Name", desc: "Desc", tags: {"Priority": ["High"]}}]
+        };
+
+        // Cache editing trackers
+        let editingTagKey = null;
+        let editingCardId = null;
+
+        // Current temporary values gathered inside tag configuration panel before saving
+        let accumulatedTagValues = [];
+
+        // Active workspace selection for adding tags to temporary card model creation
+        let activeCardCreationSelectedKey = null;
+        let cardCreationWorkingTags = {}; // format: {"Priority": ["High"]}
+
+        // Active filtering configurations for Search view
+        let searchActiveFilters = {}; // format: {"Priority": ["High", "Medium"]}
+        let activeSearchSelectedFilteringKey = null;
+
+        // Internationalization dictionary placeholders
+        const i18n = {
+            en: {
+                txtSearchCardName: "Search cards by name...",
+                txtCardName: "Card name",
+                txtCardDesc: "Description (optional)",
+                cardCreationTagPickerInput: "Choose Dynamic Tag key...",
+                cardCreationInnerTagQuery: "Type tag name to search...",
+                lblAppliedTags: "Applied Tags:",
+                btnSaveCard: "Save Card",
+                btnClearCardForm: "Clear All",
+                txtTagNameKey: "Tag Key Name",
+                txtTagValueInput: "Add value option...",
+                btnAddTagValueOption: "Add",
+                btnSaveGlobalTag: "Save Tag Key",
+                txtSearchGlobalTagsName: "Search tag keys by name...",
+                menuTitle: "Menu",
+                lblLang: "Language",
+                lblTheme: "Theme",
+                lblSession: "Session State",
+                btnDownload: "Download JSON",
+                btnUpload: "Upload JSON",
+                lblCopyReplace: "Copy / Replace State Text",
+                btnCopyJson: "Copy",
+                btnReplaceJson: "Replace",
+                lblFilterTitle: "Filters",
+                btnSurpriseMe: "Surprise Me",
+                btnResetSearchFilters: "Reset",
+                searchFilterKeyPickerInput: "Click to filter by tag key...",
+                searchFilterInnerKeyQuery: "Type key name to search...",
+                btnApplySearchFilterValues: "Apply Filter Values",
+                lblManageTagsTitle: "Define / Edit Tags",
+                btnClearTagForm: "Clear",
+                btnConfirmAddTagValuesToCard: "Add Tag to Card",
+                singleOpt: "Single Select",
+                multiOpt: "Multi Select",
+                tabSearchNav: "Search",
+                tabCreateCardNav: "Create Card",
+                tabManageTagsNav: "Manage Tags"
+            },
+            hi: {
+                txtSearchCardName: "à¤¨à¤¾à¤® à¤¸à¥‡ à¤•à¤¾à¤°à¥à¤¡ à¤–à¥‹à¤œà¥‡à¤‚...",
+                txtCardName: "à¤•à¤¾à¤°à¥à¤¡ à¤•à¤¾ à¤¨à¤¾à¤®",
+                txtCardDesc: "à¤µà¤¿à¤µà¤°à¤£ (à¤µà¥ˆà¤•à¤²à¥à¤ªà¤¿à¤•)",
+                cardCreationTagPickerInput: "à¤¡à¤¾à¤¯à¤¨à¥‡à¤®à¤¿à¤• à¤Ÿà¥ˆà¤— à¤•à¥à¤‚à¤œà¥€ à¤šà¥à¤¨à¥‡à¤‚...",
+                cardCreationInnerTagQuery: "à¤–à¥‹à¤œà¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ à¤Ÿà¥ˆà¤— à¤¨à¤¾à¤® à¤Ÿà¤¾à¤‡à¤ª à¤•à¤°à¥‡à¤‚...",
+                lblAppliedTags: "à¤²à¤¾à¤—à¥‚ à¤Ÿà¥ˆà¤—:",
+                btnSaveCard: "à¤•à¤¾à¤°à¥à¤¡ à¤¸à¤¹à¥‡à¤œà¥‡à¤‚",
+                btnClearCardForm: "à¤¸à¤­à¥€ à¤¸à¤¾à¤« à¤•à¤°à¥‡à¤‚",
+                txtTagNameKey: "à¤Ÿà¥ˆà¤— à¤•à¥à¤‚à¤œà¥€ à¤•à¤¾ à¤¨à¤¾à¤®",
+                txtTagValueInput: "à¤®à¥‚à¤²à¥à¤¯ à¤µà¤¿à¤•à¤²à¥à¤ª à¤œà¥‹à¤¡à¤¼à¥‡à¤‚...",
+                btnAddTagValueOption: "à¤œà¥‹à¤¡à¤¼à¥‡à¤‚",
+                btnSaveGlobalTag: "à¤Ÿà¥ˆà¤— à¤•à¥à¤‚à¤œà¥€ à¤¸à¤¹à¥‡à¤œà¥‡à¤‚",
+                txtSearchGlobalTagsName: "à¤¨à¤¾à¤® à¤¸à¥‡ à¤Ÿà¥ˆà¤— à¤•à¥à¤‚à¤œà¤¿à¤¯à¤¾à¤ à¤–à¥‹à¤œà¥‡à¤‚...",
+                menuTitle: "à¤®à¥‡à¤¨à¥à¤¯à¥‚",
+                lblLang: "à¤­à¤¾à¤·à¤¾",
+                lblTheme: "à¤¥à¥€à¤®",
+                lblSession: "à¤¸à¤¤à¥à¤° à¤•à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿",
+                btnDownload: "JSON à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡ à¤•à¤°à¥‡à¤‚",
+                btnUpload: "JSON à¤…à¤ªà¤²à¥‹à¤¡ à¤•à¤°à¥‡à¤‚",
+                lblCopyReplace: "à¤¸à¥à¤Ÿà¥‡à¤Ÿ à¤Ÿà¥‡à¤•à¥à¤¸à¥à¤Ÿ à¤•à¥‰à¤ªà¥€ / à¤¬à¤¦à¤²à¥‡à¤‚",
+                btnCopyJson: "à¤•à¥‰à¤ªà¥€",
+                btnReplaceJson: "à¤¬à¤¦à¤²à¥‡à¤‚",
+                lblFilterTitle: "à¤«à¤¼à¤¿à¤²à¥à¤Ÿà¤°",
+                btnSurpriseMe: "à¤¸à¤°à¤ªà¥à¤°à¤¾à¤‡à¤œ à¤®à¥€",
+                btnResetSearchFilters: "à¤°à¥€à¤¸à¥‡à¤Ÿ",
+                searchFilterKeyPickerInput: "à¤Ÿà¥ˆà¤— à¤•à¥à¤‚à¤œà¥€ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤«à¤¼à¤¿à¤²à¥à¤Ÿà¤° à¤•à¤°à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ à¤•à¥à¤²à¤¿à¤• à¤•à¤°à¥‡à¤‚...",
+                searchFilterInnerKeyQuery: "à¤–à¥‹à¤œà¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ à¤•à¥à¤‚à¤œà¥€ à¤¨à¤¾à¤® à¤Ÿà¤¾à¤‡à¤ª à¤•à¤°à¥‡à¤‚...",
+                btnApplySearchFilterValues: "à¤«à¤¼à¤¿à¤²à¥à¤Ÿà¤° à¤®à¤¾à¤¨ à¤²à¤¾à¤—à¥‚ à¤•à¤°à¥‡à¤‚",
+                lblManageTagsTitle: "à¤Ÿà¥ˆà¤— à¤ªà¤°à¤¿à¤­à¤¾à¤·à¤¿à¤¤ / à¤¸à¤‚à¤ªà¤¾à¤¦à¤¿à¤¤ à¤•à¤°à¥‡à¤‚",
+                btnClearTagForm: "à¤¸à¤¾à¤« à¤•à¤°à¥‡à¤‚",
+                btnConfirmAddTagValuesToCard: "à¤•à¤¾à¤°à¥à¤¡ à¤®à¥‡à¤‚ à¤Ÿà¥ˆà¤— à¤œà¥‹à¤¡à¤¼à¥‡à¤‚",
+                singleOpt: "à¤à¤•à¤² à¤šà¤¯à¤¨",
+                multiOpt: "à¤¬à¤¹à¥ à¤šà¤¯à¤¨",
+                tabSearchNav: "à¤–à¥‹à¤œà¥‡à¤‚",
+                tabCreateCardNav: "à¤•à¤¾à¤°à¥à¤¡ à¤¬à¤¨à¤¾à¤à¤‚",
+                tabManageTagsNav: "à¤Ÿà¥ˆà¤— à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¿à¤¤ à¤•à¤°à¥‡à¤‚"
+            }
+        };
+
+        let currentLang = 'en';
+
+        // Initialization Routine
+        window.addEventListener('DOMContentLoaded', () => {
+            setupNavigation();
+            setupSidebarAndSettings();
+            setupCollapsibles();
+            setupGlobalTagsFeature();
+            setupCardCreationFeature();
+            setupSearchCardsFeature();
+            applyLanguage('en');
+            renderAll();
+        });
+
+        // Language Translation Renderer
+        function applyLanguage(lang) {
+            currentLang = lang;
+            const dictionary = i18n[lang];
+            
+            // Text Content Updates
+            document.getElementById('menuTitle').textContent = dictionary.menuTitle;
+            document.getElementById('lblLang').textContent = dictionary.lblLang;
+            document.getElementById('lblTheme').textContent = dictionary.lblTheme;
+            document.getElementById('lblSession').textContent = dictionary.lblSession;
+            document.getElementById('btnDownload').textContent = dictionary.btnDownload;
+            document.getElementById('btnUpload').textContent = dictionary.btnUpload;
+            document.getElementById('lblCopyReplace').textContent = dictionary.lblCopyReplace;
+            document.getElementById('btnCopyJson').textContent = dictionary.btnCopyJson;
+            document.getElementById('btnReplaceJson').textContent = dictionary.btnReplaceJson;
+            
+            document.getElementById('lblFilterTitle').textContent = dictionary.lblFilterTitle;
+            document.getElementById('btnSurpriseMe').textContent = dictionary.btnSurpriseMe;
+            document.getElementById('btnResetSearchFilters').textContent = dictionary.btnResetSearchFilters;
+            document.getElementById('btnApplySearchFilterValues').textContent = dictionary.btnApplySearchFilterValues;
+            
+            document.getElementById('lblAppliedTags').textContent = dictionary.lblAppliedTags;
+            document.getElementById('btnSaveCard').textContent = dictionary.btnSaveCard;
+            document.getElementById('btnClearCardForm').textContent = dictionary.btnClearCardForm;
+            document.getElementById('btnConfirmAddTagValuesToCard').textContent = dictionary.btnConfirmAddTagValuesToCard;
+            
+            document.getElementById('lblManageTagsTitle').textContent = dictionary.lblManageTagsTitle;
+            document.getElementById('btnClearTagForm').textContent = dictionary.btnClearTagForm;
+            document.getElementById('btnAddTagValueOption').textContent = dictionary.btnAddTagValueOption;
+            document.getElementById('btnSaveGlobalTag').textContent = dictionary.btnSaveGlobalTag;
+
+            document.getElementById('tabSearchNav').textContent = dictionary.tabSearchNav;
+            document.getElementById('tabCreateCardNav').textContent = dictionary.tabCreateCardNav;
+            document.getElementById('tabManageTagsNav').textContent = dictionary.tabManageTagsNav;
+
+            // Placeholders Updates
+            document.getElementById('txtSearchCardName').placeholder = dictionary.txtSearchCardName;
+            document.getElementById('searchFilterKeyPickerInput').placeholder = dictionary.searchFilterKeyPickerInput;
+            document.getElementById('searchFilterInnerKeyQuery').placeholder = dictionary.searchFilterInnerKeyQuery;
+            
+            document.getElementById('txtCardName').placeholder = dictionary.txtCardName;
+            document.getElementById('txtCardDesc').placeholder = dictionary.txtCardDesc;
+            document.getElementById('cardCreationTagPickerInput').placeholder = dictionary.cardCreationTagPickerInput;
+            document.getElementById('cardCreationInnerTagQuery').placeholder = dictionary.cardCreationInnerTagQuery;
+            
+            document.getElementById('txtTagNameKey').placeholder = dictionary.txtTagNameKey;
+            document.getElementById('txtTagValueInput').placeholder = dictionary.txtTagValueInput;
+            document.getElementById('txtSearchGlobalTagsName').placeholder = dictionary.txtSearchGlobalTagsName;
+
+            // Selector Updates
+            const selTagType = document.getElementById('selTagType');
+            selTagType.options[0].text = dictionary.singleOpt;
+            selTagType.options[1].text = dictionary.multiOpt;
+        }
+
+        // View Tabs switching
+        function setupNavigation() {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        // Side sliding Drawer and Global settings management
+        function setupSidebarAndSettings() {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('menuOverlay');
+            const toggleBtn = document.getElementById('sidebarToggleBtn');
+            const closeBtn = document.getElementById('sidebarCloseBtn');
+
+            function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('visible'); updateJsonTextAreaFromState(); }
+            function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('visible'); }
+
+            toggleBtn.addEventListener('click', openSidebar);
+            closeBtn.addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+
+            // Theme Switcher
+            document.getElementById('themeSelect').addEventListener('change', (e) => {
+                document.documentElement.setAttribute('data-theme', e.target.value);
+            });
+
+            // Language Switcher
+            document.getElementById('langSelect').addEventListener('change', (e) => {
+                applyLanguage(e.target.value);
+            });
+
+            // Download JSON functionality
+            document.getElementById('btnDownload').addEventListener('click', () => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `session_state_${Date.now()}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            });
+
+            // Upload JSON triggers
+            const fileInput = document.getElementById('fileInput');
+            document.getElementById('btnUpload').addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    try {
+                        const parsed = JSON.parse(evt.target.result);
+                        loadStateSafely(parsed);
+                        closeSidebar();
+                    } catch(err) {
+                        alert("Invalid JSON format supplied.");
+                    }
+                };
+                reader.readAsText(file);
+                fileInput.value = ""; // clear
+            });
+
+            // Copy and Replace JSON string actions
+            document.getElementById('btnCopyJson').addEventListener('click', () => {
+                const area = document.getElementById('jsonTextArea');
+                area.select();
+                document.execCommand('copy');
+            });
+
+            document.getElementById('btnReplaceJson').addEventListener('click', () => {
+                try {
+                    const parsed = JSON.parse(document.getElementById('jsonTextArea').value);
+                    loadStateSafely(parsed);
+                    closeSidebar();
+                } catch(e) {
+                    alert("Invalid JSON text string layout.");
+                }
+            });
+        }
+
+        function updateJsonTextAreaFromState() {
+            document.getElementById('jsonTextArea').value = JSON.stringify(appState);
+        }
+
+        function loadStateSafely(incoming) {
+            appState.tags = incoming.tags || {};
+            appState.cards = incoming.cards || [];
+            
+            // Clean up missing references if any
+            searchActiveFilters = {};
+            cardCreationWorkingTags = {};
+            clearTagFields();
+            clearCardFields();
+            renderAll();
+        }
+
+        // Toggle handling configuration
+        function setupCollapsibles() {
+            setupCollapsibleItem('manageTagsBox', 'manageTagsHeader');
+            setupCollapsibleItem('searchFilterBox', 'searchFilterHeader');
+        }
+
+        function setupCollapsibleItem(containerId, headerId) {
+            const container = document.getElementById(containerId);
+            const header = document.getElementById(headerId);
+            const icon = header.querySelector('.toggle-icon');
+
+            header.addEventListener('click', (e) => {
+                // Ignore if clicked on an action button inside the header bar directly
+                if (e.target.closest('.collapsible-actions')) return;
+
+                const isExpanded = container.classList.contains('expanded');
+                if (isExpanded) {
+                    container.classList.remove('expanded');
+                    icon.textContent = '+';
+                } else {
+                    container.classList.add('expanded');
+                    icon.textContent = '-';
+                }
+            });
+        }
+
+        // Global state display list and tag modifications engine
+        function setupGlobalTagsFeature() {
+            const btnAddVal = document.getElementById('btnAddTagValueOption');
+            const inputVal = document.getElementById('txtTagValueInput');
+            const btnSaveTag = document.getElementById('btnSaveGlobalTag');
+            const btnClear = document.getElementById('btnClearTagForm');
+            const searchInput = document.getElementById('txtSearchGlobalTagsName');
+
+            btnAddVal.addEventListener('click', () => {
+                const val = inputVal.value.trim();
+                if (!val) return;
+                if (!accumulatedTagValues.includes(val)) {
+                    accumulatedTagValues.push(val);
+                    renderAccumulatedTagPills();
+                }
+                inputVal.value = "";
+            });
+
+            btnSaveTag.addEventListener('click', () => {
+                const keyName = document.getElementById('txtTagNameKey').value.trim();
+                const type = document.getElementById('selTagType').value;
+
+                if (!keyName) return;
+
+                // If editing changed the tag name, remove the old one first
+                if (editingTagKey && editingTagKey !== keyName) {
+                    delete appState.tags[editingTagKey];
+                    // Propagate rename updates across cards
+                    appState.cards.forEach(card => {
+                        if (card.tags[editingTagKey]) {
+                            card.tags[keyName] = card.tags[editingTagKey];
+                            delete card.tags[editingTagKey];
+                        }
+                    });
+                    // Sync active filters
+                    if (searchActiveFilters[editingTagKey]) {
+                        searchActiveFilters[keyName] = searchActiveFilters[editingTagKey];
+                        delete searchActiveFilters[editingTagKey];
+                    }
+                }
+
+                appState.tags[keyName] = {
+                    type: type,
+                    values: [...accumulatedTagValues]
+                };
+
+                // Validate matching single select rule profiles
+                if (type === 'single') {
+                    appState.cards.forEach(card => {
+                        if (card.tags[keyName] && card.tags[keyName].length > 1) {
+                            card.tags[keyName] = [card.tags[keyName][0]];
+                        }
+                    });
+                }
+
+                clearTagFields();
+                renderAll();
+            });
+
+            btnClear.addEventListener('click', clearTagFields);
+            searchInput.addEventListener('input', renderGlobalTagsList);
+        }
+
+        function clearTagFields() {
+            editingTagKey = null;
+            accumulatedTagValues = [];
+            document.getElementById('txtTagNameKey').value = "";
+            document.getElementById('txtTagNameKey').disabled = false;
+            document.getElementById('txtTagValueInput').value = "";
+            document.getElementById('selTagType').value = "single";
+            renderAccumulatedTagPills();
+            updateTagsPanelFilterIndicator();
+        }
+
+        function renderAccumulatedTagPills() {
+            const container = document.getElementById('tagValueOptionsAccumulatorPills');
+            container.innerHTML = "";
+            accumulatedTagValues.forEach((val, idx) => {
+                const pill = document.createElement('span');
+                pill.className = "pill";
+                pill.textContent = val + " ";
+                
+                const closeX = document.createElement('span');
+                closeX.className = "close-x";
+                closeX.textContent = "âœ•";
+                closeX.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    accumulatedTagValues.splice(idx, 1);
+                    renderAccumulatedTagPills();
+                    updateTagsPanelFilterIndicator();
+                });
+                
+                pill.appendChild(closeX);
+                container.appendChild(pill);
+            });
+            updateTagsPanelFilterIndicator();
+        }
+
+        function updateTagsPanelFilterIndicator() {
+            const ind = document.getElementById('filterIndicatorTags');
+            if (document.getElementById('txtTagNameKey').value.trim() || accumulatedTagValues.length > 0) {
+                ind.classList.remove('hidden');
+            } else {
+                ind.classList.add('hidden');
+            }
+        }
+
+        function populateTagForEdit(key) {
+            editingTagKey = key;
+            const data = appState.tags[key];
+            document.getElementById('txtTagNameKey').value = key;
+            document.getElementById('selTagType').value = data.type;
+            accumulatedTagValues = [...data.values];
+            renderAccumulatedTagPills();
+            
+            // Expand configuration drawer to display settings
+            document.getElementById('manageTagsBox').classList.add('expanded');
+            document.getElementById('manageTagsHeader').querySelector('.toggle-icon').textContent = '-';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderGlobalTagsList() {
+            const listContainer = document.getElementById('globalTagsDisplayList');
+            listContainer.innerHTML = "";
+            const searchQuery = document.getElementById('txtSearchGlobalTagsName').value.toLowerCase();
+
+            Object.keys(appState.tags).forEach(key => {
+                if (searchQuery && !key.toLowerCase().includes(searchQuery)) return;
+
+                const tagData = appState.tags[key];
+                
+                const itemCard = document.createElement('div');
+                itemCard.className = "item-card";
+                itemCard.addEventListener('click', () => populateTagForEdit(key));
+
+                const info = document.createElement('div');
+                info.className = "item-info";
+                
+                const title = document.createElement('h4');
+                title.textContent = key;
+                
+                const desc = document.createElement('p');
+                desc.textContent = `[${tagData.type}] : ${tagData.values.join(', ')}`;
+                
+                info.appendChild(title);
+                info.appendChild(desc);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = "btn";
+                deleteBtn.style.padding = "4px 8px";
+                deleteBtn.textContent = "âœ•";
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Delete global reference
+                    delete appState.tags[key];
+                    // Strip matching attachments from cards
+                    appState.cards.forEach(card => { delete card.tags[key]; });
+                    // Delete filter maps
+                    delete searchActiveFilters[key];
+                    
+                    if (editingTagKey === key) clearTagFields();
+                    renderAll();
+                });
+
+                itemCard.appendChild(info);
+                itemCard.appendChild(deleteBtn);
+                listContainer.appendChild(itemCard);
+            });
+        }
+
+
+        // Card creation workspace setup engine
+        function setupCardCreationFeature() {
+            const pickerInput = document.getElementById('cardCreationTagPickerInput');
+            const dropdownWrapper = document.getElementById('cardCreationTagDropdown');
+            const innerSearch = document.getElementById('cardCreationInnerTagQuery');
+            const btnConfirm = document.getElementById('btnConfirmAddTagValuesToCard');
+            const btnClearAll = document.getElementById('btnClearCardForm');
+            const btnSave = document.getElementById('btnSaveCard');
+
+            // Dropdown menu toggle behaviors
+            pickerInput.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownWrapper.classList.toggle('show');
+                renderCardCreationDropdownOptions();
+            });
+
+            innerSearch.addEventListener('input', renderCardCreationDropdownOptions);
+
+            // Hide picker box when clicking outside target zones
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown-picker-container')) {
+                    dropdownWrapper.classList.remove('show');
+                    document.getElementById('searchFilterKeyDropdown').classList.remove('show');
+                }
+            });
+
+            btnConfirm.addEventListener('click', () => {
+                if (!activeCardCreationSelectedKey) return;
+                const container = document.getElementById('cardCreationValueOptionsWrapper');
+                const selectedValues = [];
+                container.querySelectorAll('input').forEach(input => {
+                    if (input.checked) selectedValues.push(input.value);
+                });
+
+                if (selectedValues.length > 0) {
+                    cardCreationWorkingTags[activeCardCreationSelectedKey] = selectedValues;
+                } else {
+                    delete cardCreationWorkingTags[activeCardCreationSelectedKey];
+                }
+
+                // Hide value selector block
+                document.getElementById('cardCreationValuePickContainer').classList.add('hidden');
+                activeCardCreationSelectedKey = null;
+                pickerInput.value = "";
+                renderCardCreationAppliedPills();
+            });
+
+            btnClearAll.addEventListener('click', clearCardFields);
+
+            btnSave.addEventListener('click', () => {
+                const name = document.getElementById('txtCardName').value.trim();
+                const desc = document.getElementById('txtCardDesc').value.trim();
+
+                if (!name) return;
+
+                if (editingCardId) {
+                    // Update matching card configuration instance
+                    const card = appState.cards.find(c => c.id === editingCardId);
+                    if (card) {
+                        card.name = name;
+                        card.desc = desc;
+                        card.tags = JSON.parse(JSON.stringify(cardCreationWorkingTags));
+                    }
+                } else {
+                    // Create new layout
+                    const newCard = {
+                        id: 'card_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                        name: name,
+                        desc: desc,
+                        tags: JSON.parse(JSON.stringify(cardCreationWorkingTags))
+                    };
+                    appState.cards.push(newCard);
+                }
+
+                clearCardFields();
+                // Route navigation viewport focus automatically back to default active database search dashboard view tab
+                document.getElementById('tabSearchNav').click();
+                renderAll();
+            });
+        }
+
+        function clearCardFields() {
+            editingCardId = null;
+            cardCreationWorkingTags = {};
+            activeCardCreationSelectedKey = null;
+            document.getElementById('txtCardName').value = "";
+            document.getElementById('txtCardDesc').value = "";
+            document.getElementById('cardCreationTagPickerInput').value = "";
+            document.getElementById('cardCreationValuePickContainer').classList.add('hidden');
+            renderCardCreationAppliedPills();
+        }
+
+        function renderCardCreationDropdownOptions() {
+            const list = document.getElementById('cardCreationTagResultsList');
+            list.innerHTML = "";
+            const query = document.getElementById('cardCreationInnerTagQuery').value.toLowerCase();
+
+            Object.keys(appState.tags).forEach(key => {
+                if (query && !key.toLowerCase().includes(query)) return;
+
+                const div = document.createElement('div');
+                div.className = "search-item-option";
+                div.textContent = key;
+                div.addEventListener('click', () => {
+                    activateCardCreationTagValuePicker(key);
+                    document.getElementById('cardCreationTagDropdown').classList.remove('show');
+                });
+                list.appendChild(div);
+            });
+        }
+
+        function activateCardCreationTagValuePicker(key) {
+            activeCardCreationSelectedKey = key;
+            document.getElementById('cardCreationTagPickerInput').value = key;
+            
+            const block = document.getElementById('cardCreationValuePickContainer');
+            block.classList.remove('hidden');
+            
+            document.getElementById('lblSelectedCreationKeyText').textContent = `Key: ${key} (${appState.tags[key].type})`;
+            
+            const optionsWrapper = document.getElementById('cardCreationValueOptionsWrapper');
+            optionsWrapper.innerHTML = "";
+
+            const tagInfo = appState.tags[key];
+            const alreadySelected = cardCreationWorkingTags[key] || [];
+
+            tagInfo.values.forEach(val => {
+                const label = document.createElement('label');
+                label.style.display = "flex";
+                label.style.alignItems = "center";
+                label.style.gap = "8px";
+                label.style.cursor = "pointer";
+
+                const input = document.createElement('input');
+                input.type = (tagInfo.type === 'single') ? 'radio' : 'checkbox';
+                input.name = "cardCreationTagValueSelectionGroup";
+                input.value = val;
+                if (alreadySelected.includes(val)) input.checked = true;
+
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(val));
+                optionsWrapper.appendChild(label);
+            });
+        }
+
+        function renderCardCreationAppliedPills() {
+            const container = document.getElementById('cardCreationAppliedTagsPills');
+            container.innerHTML = "";
+
+            Object.keys(cardCreationWorkingTags).forEach(key => {
+                const values = cardCreationWorkingTags[key];
+                if (!values || values.length === 0) return;
+
+                const pill = document.createElement('span');
+                pill.className = "pill";
+                pill.textContent = `${key}: ${values.join(', ')} `;
+                pill.style.borderRadius = "4px";
+                
+                // Clicking custom configuration pill re-populates values panel for active modification updates
+                pill.addEventListener('click', () => {
+                    activateCardCreationTagValuePicker(key);
+                });
+
+                const closeX = document.createElement('span');
+                closeX.className = "close-x";
+                closeX.textContent = "âœ•";
+                closeX.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    delete cardCreationWorkingTags[key];
+                    if (activeCardCreationSelectedKey === key) {
+                        document.getElementById('cardCreationValuePickContainer').classList.add('hidden');
+                        document.getElementById('cardCreationTagPickerInput').value = "";
+                        activeCardCreationSelectedKey = null;
+                    }
+                    renderCardCreationAppliedPills();
+                });
+
+                pill.appendChild(closeX);
+                container.appendChild(pill);
+            });
+        }
+
+        function populateCardForEdit(card) {
+            editingCardId = card.id;
+            document.getElementById('txtCardName').value = card.name;
+            document.getElementById('txtCardDesc').value = card.desc;
+            cardCreationWorkingTags = JSON.parse(JSON.stringify(card.tags));
+            
+            // Clean out abandoned values just in case definitions shifted dynamically
+            Object.keys(cardCreationWorkingTags).forEach(k => {
+                if (!appState.tags[k]) {
+                    delete cardCreationWorkingTags[k];
+                }
+            });
+
+            renderCardCreationAppliedPills();
+            document.getElementById('cardCreationValuePickContainer').classList.add('hidden');
+            document.getElementById('cardCreationTagPickerInput').value = "";
+
+            // Change active dashboard tab to card generation module layout
+            document.getElementById('tabCreateCardNav').click();
+        }
+
+
+        // Card exploration and logic search filters engine
+        function setupSearchCardsFeature() {
+            const pickerInput = document.getElementById('searchFilterKeyPickerInput');
+            const dropdownWrapper = document.getElementById('searchFilterKeyDropdown');
+            const innerSearch = document.getElementById('searchFilterInnerKeyQuery');
+            const btnApplyFilters = document.getElementById('btnApplySearchFilterValues');
+            const btnReset = document.getElementById('btnResetSearchFilters');
+            const btnSurprise = document.getElementById('btnSurpriseMe');
+            const txtSearchName = document.getElementById('txtSearchCardName');
+
+            pickerInput.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownWrapper.classList.toggle('show');
+                renderSearchFilterDropdownOptions();
+            });
+
+            innerSearch.addEventListener('input', renderSearchFilterDropdownOptions);
+
+            btnApplyFilters.addEventListener('click', () => {
+                if (!activeSearchSelectedFilteringKey) return;
+                const container = document.getElementById('searchFilterValueOptionsWrapper');
+                const selected = [];
+                container.querySelectorAll('input').forEach(input => {
+                    if (input.checked) selected.push(input.value);
+                });
+
+                if (selected.length > 0) {
+                    searchActiveFilters[activeSearchSelectedFilteringKey] = selected;
+                } else {
+                    delete searchActiveFilters[activeSearchSelectedFilteringKey];
+                }
+
+                document.getElementById('searchFilterValueSelectionBlock').classList.add('hidden');
+                activeSearchSelectedFilteringKey = null;
+                pickerInput.value = "";
+                
+                renderSearchFiltersPills();
+                renderCardsDashboardGrid();
+                updateSearchFilterBoxHeaderUI();
+            });
+
+            btnReset.addEventListener('click', () => {
+                searchActiveFilters = {};
+                activeSearchSelectedFilteringKey = null;
+                pickerInput.value = "";
+                document.getElementById('searchFilterValueSelectionBlock').classList.add('hidden');
+                renderSearchFiltersPills();
+                renderCardsDashboardGrid();
+                updateSearchFilterBoxHeaderUI();
+            });
+
+            btnSurprise.addEventListener('click', executeSurpriseAnimationSequence);
+            txtSearchName.addEventListener('input', renderCardsDashboardGrid);
+        }
+
+        function updateSearchFilterBoxHeaderUI() {
+            const dot = document.getElementById('filterIndicatorSearch');
+            if (Object.keys(searchActiveFilters).length > 0) {
+                dot.classList.remove('hidden');
+            } else {
+                dot.classList.add('hidden');
+            }
+        }
+
+        function renderSearchFilterDropdownOptions() {
+            const list = document.getElementById('searchFilterKeyList');
+            list.innerHTML = "";
+            const query = document.getElementById('searchFilterInnerKeyQuery').value.toLowerCase();
+
+            Object.keys(appState.tags).forEach(key => {
+                if (query && !key.toLowerCase().includes(query)) return;
+
+                const div = document.createElement('div');
+                div.className = "search-item-option";
+                div.textContent = key;
+                div.addEventListener('click', () => {
+                    activateSearchFilterValueSelectionPanel(key);
+                    document.getElementById('searchFilterKeyDropdown').classList.remove('show');
+                });
+                list.appendChild(div);
+            });
+        }
+
+        function activateSearchFilterValueSelectionPanel(key) {
+            activeSearchSelectedFilteringKey = key;
+            document.getElementById('searchFilterKeyPickerInput').value = key;
+
+            const block = document.getElementById('searchFilterValueSelectionBlock');
+            block.classList.remove('hidden');
+
+            document.getElementById('searchCurrentSelectingKeyText').textContent = `Filtering key option: ${key} (All Multi-OR logic)`;
+            
+            const optionsWrapper = document.getElementById('searchFilterValueOptionsWrapper');
+            optionsWrapper.innerHTML = "";
+
+            const tagInfo = appState.tags[key];
+            const alreadyFiltered = searchActiveFilters[key] || [];
+
+            tagInfo.values.forEach(val => {
+                const label = document.createElement('label');
+                label.style.display = "flex";
+                label.style.alignItems = "center";
+                label.style.gap = "8px";
+                label.style.cursor = "pointer";
+
+                const input = document.createElement('input');
+                input.type = 'checkbox'; // All matching tag operations inside search system query filters remain multi select overrides
+                input.value = val;
+                if (alreadyFiltered.includes(val)) input.checked = true;
+
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(val));
+                optionsWrapper.appendChild(label);
+            });
+        }
+
+        function renderSearchFiltersPills() {
+            const container = document.getElementById('activeSearchFiltersDisplayPills');
+            container.innerHTML = "";
+
+            Object.keys(searchActiveFilters).forEach(key => {
+                const values = searchActiveFilters[key];
+                if (!values || values.length === 0) return;
+
+                const pill = document.createElement('span');
+                pill.className = "pill";
+                pill.textContent = `${key}: ${values.join(' OR ')} `;
+                pill.style.borderRadius = "4px";
+                
+                pill.addEventListener('click', () => {
+                    activateSearchFilterValueSelectionPanel(key);
+                });
+
+                const closeX = document.createElement('span');
+                closeX.className = "close-x";
+                closeX.textContent = "âœ•";
+                closeX.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    delete searchActiveFilters[key];
+                    if (activeSearchSelectedFilteringKey === key) {
+                        document.getElementById('searchFilterValueSelectionBlock').classList.add('hidden');
+                        document.getElementById('searchFilterKeyPickerInput').value = "";
+                        activeSearchSelectedFilteringKey = null;
+                    }
+                    renderSearchFiltersPills();
+                    renderCardsDashboardGrid();
+                    updateSearchFilterBoxHeaderUI();
+                });
+
+                pill.appendChild(closeX);
+                container.appendChild(pill);
+            });
+        }
+
+        // Logical evaluation filtering engine: OR inside key criteria parameters, AND logic gates distributed across keys
+        function getFilteredCardsList() {
+            const textQuery = document.getElementById('txtSearchCardName').value.trim().toLowerCase();
+
+            return appState.cards.filter(card => {
+                // Evaluation gate 1: Name verification text matching logic parameters
+                if (textQuery && !card.name.toLowerCase().includes(textQuery)) return false;
+
+                // Evaluation gate 2: Tags configuration evaluation loops
+                for (let filterKey of Object.keys(searchActiveFilters)) {
+                    const targetFilterValues = searchActiveFilters[filterKey];
+                    if (!targetFilterValues || targetFilterValues.length === 0) continue;
+
+                    const appliedCardValues = card.tags[filterKey] || [];
+                    
+                    // Match checklist verification step inside row matrix arrays (OR checking layout maps)
+                    const hasMatch = targetFilterValues.some(val => appliedCardValues.includes(val));
+                    if (!hasMatch) return false; // Break active condition cycle if match row evaluation loop configuration fails (AND across distinct keys)
+                }
+
+                return true;
+            });
+        }
+
+        function renderCardsDashboardGrid() {
+            const grid = document.getElementById('cardsDisplayContainer');
+            grid.innerHTML = "";
+
+            const viableCards = getFilteredCardsList();
+
+            viableCards.forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = "display-card";
+                cardDiv.id = `dom_${card.id}`;
+                cardDiv.addEventListener('click', () => populateCardForEdit(card));
+
+                const header = document.createElement('div');
+                header.className = "display-card-header";
+
+                const title = document.createElement('div');
+                title.className = "display-card-title";
+                title.textContent = card.name;
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = "btn";
+                deleteBtn.style.padding = "2px 6px";
+                deleteBtn.textContent = "âœ•";
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    appState.cards = appState.cards.filter(c => c.id !== card.id);
+                    renderCardsDashboardGrid();
+                });
+
+                header.appendChild(title);
+                header.appendChild(deleteBtn);
+                cardDiv.appendChild(header);
+
+                if (card.desc) {
+                    const desc = document.createElement('div');
+                    desc.className = "display-card-desc";
+                    desc.textContent = card.desc;
+                    cardDiv.appendChild(desc);
+                }
+
+                const tagsArea = document.createElement('div');
+                tagsArea.className = "display-card-tags";
+
+                Object.keys(card.tags).forEach(k => {
+                    // Render key references dynamically only if the matching parent global tag rule framework still persists
+                    if (!appState.tags[k]) return; 
+                    const vals = card.tags[k] || [];
+                    if (vals.length === 0) return;
+
+                    const row = document.createElement('div');
+                    row.className = "card-tag-row";
+                    
+                    const kSpan = document.createElement('span');
+                    kSpan.className = "card-tag-key";
+                    kSpan.textContent = `${k}: `;
+
+                    row.appendChild(kSpan);
+                    row.appendChild(document.createTextNode(vals.join(', ')));
+                    tagsArea.appendChild(row);
+                });
+
+                cardDiv.appendChild(tagsArea);
+                grid.appendChild(cardDiv);
+            });
+        }
+
+        // Surprise Me Animation Module Configuration Routing loops
+        function executeSurpriseAnimationSequence() {
+            const viableCards = getFilteredCardsList();
+            if (viableCards.length === 0) return;
+
+            const selectedChoice = viableCards[Math.floor(Math.random() * viableCards.length)];
+            const targetElement = document.getElementById(`dom_${selectedChoice.id}`);
+            
+            if (!targetElement) return;
+
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetElement.classList.add('surprise-highlight');
+
+            // Strip the temporary visual alert tracking markers when presentation tracking loops finish operations
+            setTimeout(() => {
+                targetElement.classList.remove('surprise-highlight');
+            }, 1500);
+        }
+
+        // Master UI layout sync updates execution pipeline functions
+        function renderAll() {
+            renderGlobalTagsList();
+            renderCardCreationAppliedPills();
+            renderSearchFiltersPills();
+            renderCardsDashboardGrid();
+            updateSearchFilterBoxHeaderUI();
+            updateTagsPanelFilterIndicator();
+        }
+    </script>
+</body>
+</html>
