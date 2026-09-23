@@ -94,6 +94,37 @@
             border-color: var(--primary-color);
         }
 
+        /* Input Container with Clear Cross Button */
+        .input-clear-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .input-clear-wrapper input {
+            width: 100%;
+            padding-right: 30px;
+        }
+
+        .clear-input-btn {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            display: none;
+        }
+
+        .clear-input-btn:hover {
+            color: var(--error-color);
+        }
+
         .icon-btn {
             background: none;
             border: none;
@@ -110,6 +141,15 @@
         .icon-btn:hover {
             background-color: var(--surface-hover);
             color: var(--primary-color);
+        }
+
+        /* Larger Cross Styles for Drawers and Modals */
+        .drawer-header .close-btn,
+        .modal-header .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            line-height: 1;
+            padding: 2px 8px;
         }
 
         .btn {
@@ -311,6 +351,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            transition: var(--transition);
         }
 
         .chip .remove-btn {
@@ -335,6 +376,12 @@
             color: var(--primary-color);
             border: 1.5px solid var(--primary-color);
             font-weight: 600;
+        }
+
+        /* Active/Applied Chip Highlighted Border during Selection/Updation */
+        .chip.active-editing {
+            border: 2px solid var(--primary-color) !important;
+            box-shadow: 0 0 6px var(--primary-color);
         }
 
         /* Card Displays */
@@ -564,7 +611,7 @@
     <div id="menu-drawer" class="drawer drawer-left">
         <div class="drawer-header">
             <h3 data-i18n="title_menu">Menu</h3>
-            <button class="icon-btn" onclick="toggleMenuDrawer(false)">&times;</button>
+            <button class="icon-btn close-btn" onclick="toggleMenuDrawer(false)">&times;</button>
         </div>
         <ul class="menu-list">
             <li class="menu-item" data-view="search" onclick="selectSection('search')" data-i18n="nav_search">Search Cards</li>
@@ -612,7 +659,10 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 0;">
-                    <input type="text" id="search-card-text" placeholder="Search cards by name..." oninput="renderCards()" data-i18n-ph="ph_search_cards">
+                    <div class="input-clear-wrapper">
+                        <input type="text" id="search-card-text" placeholder="Search cards by name..." oninput="handleSearchCardInput()" data-i18n-ph="ph_search_cards">
+                        <button class="clear-input-btn" id="search-card-clear-btn" onclick="clearSearchCardInput()">&times;</button>
+                    </div>
                 </div>
             </div>
 
@@ -680,7 +730,7 @@
                     </div>
                     <div class="collapsible-content">
                         <div class="form-group">
-                            <label data-i18n="lbl_tag_key">Tag Key Name</label>
+                            <label data-i18n="lbl_tag_key">Tag Key Name *</label>
                             <input type="text" id="tag-key-input" placeholder="e.g. Priority" data-i18n-ph="ph_tag_key">
                         </div>
                         <div class="form-group">
@@ -703,7 +753,10 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom:0;">
-                    <input type="text" id="search-tag-text" placeholder="Search tags by key or value..." oninput="renderTagsList()" data-i18n-ph="ph_search_tags">
+                    <div class="input-clear-wrapper">
+                        <input type="text" id="search-tag-text" placeholder="Search tags by key or value..." oninput="handleSearchTagInput()" data-i18n-ph="ph_search_tags">
+                        <button class="clear-input-btn" id="search-tag-clear-btn" onclick="clearSearchTagInput()">&times;</button>
+                    </div>
                 </div>
             </div>
 
@@ -716,7 +769,7 @@
     <div id="settings-drawer" class="drawer drawer-right">
         <div class="drawer-header">
             <h3 data-i18n="title_settings">Settings</h3>
-            <button class="icon-btn" onclick="toggleSettingsDrawer(false)">&times;</button>
+            <button class="icon-btn close-btn" onclick="toggleSettingsDrawer(false)">&times;</button>
         </div>
         <div class="form-group">
             <label data-i18n="lbl_language">Language</label>
@@ -753,7 +806,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n="modal_export_title">Export Application State</h3>
-                <button class="icon-btn" onclick="closeModal('download-modal')">&times;</button>
+                <button class="icon-btn close-btn" onclick="closeModal('download-modal')">&times;</button>
             </div>
             <div class="modal-body">
                 <textarea id="download-json-area" readonly></textarea>
@@ -770,7 +823,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n="modal_import_title">Import Application State</h3>
-                <button class="icon-btn" onclick="closeModal('upload-modal')">&times;</button>
+                <button class="icon-btn close-btn" onclick="closeModal('upload-modal')">&times;</button>
             </div>
             <div class="modal-body">
                 <textarea id="upload-json-area" placeholder="Paste JSON here or upload a file below..." data-i18n-ph="ph_paste_json"></textarea>
@@ -837,7 +890,8 @@
                 btn_apply: "Apply State",
                 msg_copied: "Copied to clipboard!",
                 msg_invalid_json: "Invalid JSON provided!",
-                msg_empty_name: "Please enter a card name."
+                msg_empty_name: "Please enter a card name.",
+                msg_empty_tag_key: "Please enter a Tag Key Name."
             },
             hindi: {
                 title_menu: "मेन्यू",
@@ -890,7 +944,8 @@
                 btn_apply: "स्थिति लागू करें",
                 msg_copied: "क्लिपबोर्ड पर कॉपी हो गया!",
                 msg_invalid_json: "अमान्य JSON प्रदान किया गया!",
-                msg_empty_name: "कृपया कार्ड का नाम दर्ज करें।"
+                msg_empty_name: "कृपया कार्ड का नाम दर्ज करें।",
+                msg_empty_tag_key: "कृपया टैग कुंजी नाम दर्ज करें।"
             }
         };
 
@@ -912,9 +967,12 @@
         let editingTagKey = null;
 
         let cardBufferTags = {}; // { Key: [values] }
+        let currentSelectingCardKey = null; // Track key being configured in UI
+        let currentSelectingCardValues = []; // Values selected but not explicitly added via Add Tag
         let editingCardId = null;
 
         let activeFilters = {}; // { Key: [values] }
+        let currentSelectingFilterKey = null;
         let selectedFilterValues = [];
 
         // System Preference Listener
@@ -940,13 +998,40 @@
                 try {
                     appState = JSON.parse(saved);
                     if (!appState.defaults) appState.defaults = { language: "english", currentView: "search" };
-                    if (appState.defaults.theme) delete appState.defaults.theme; // Ensure theme is removed if loaded from old state
+                    if (appState.defaults.theme) delete appState.defaults.theme;
                     if (!appState.tags) appState.tags = {};
                     if (!appState.cards) appState.cards = [];
                 } catch(e) {
                     console.error("Failed to load state", e);
                 }
             }
+        }
+
+        // --- Text Input Clear Cross Controls ---
+        function handleSearchCardInput() {
+            const val = document.getElementById('search-card-text').value;
+            const clearBtn = document.getElementById('search-card-clear-btn');
+            clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+            renderCards();
+        }
+
+        function clearSearchCardInput() {
+            document.getElementById('search-card-text').value = '';
+            document.getElementById('search-card-clear-btn').style.display = 'none';
+            renderCards();
+        }
+
+        function handleSearchTagInput() {
+            const val = document.getElementById('search-tag-text').value;
+            const clearBtn = document.getElementById('search-tag-clear-btn');
+            clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+            renderTagsList();
+        }
+
+        function clearSearchTagInput() {
+            document.getElementById('search-tag-text').value = '';
+            document.getElementById('search-tag-clear-btn').style.display = 'none';
+            renderTagsList();
         }
 
         // --- Navigation ---
@@ -1120,7 +1205,11 @@
             const key = keyInput.value.trim();
             const type = currentTagType;
 
-            if (!key) return;
+            // Prompt check when Tag Key Name is empty
+            if (!key) {
+                alert((i18nData[appState.defaults.language]||i18nData.english).msg_empty_tag_key);
+                return;
+            }
 
             if (editingTagKey && editingTagKey !== key) {
                 delete appState.tags[editingTagKey];
@@ -1228,57 +1317,78 @@
                 select.innerHTML += `<option value="${key}">${key}</option>`;
             });
             document.getElementById('card-tag-values-box').classList.add('hidden');
+            currentSelectingCardKey = null;
+            currentSelectingCardValues = [];
+            renderCardBufferTagsCloud();
         }
 
         function onCardKeyChange() {
             const key = document.getElementById('card-tag-key-select').value;
             const box = document.getElementById('card-tag-values-box');
-            if (!key) { box.classList.add('hidden'); return; }
+            if (!key) { 
+                box.classList.add('hidden'); 
+                currentSelectingCardKey = null;
+                currentSelectingCardValues = [];
+                renderCardBufferTagsCloud();
+                return; 
+            }
 
+            currentSelectingCardKey = key;
+            currentSelectingCardValues = cardBufferTags[key] ? [...cardBufferTags[key]] : [];
             box.classList.remove('hidden');
             renderCardTagValuesDisplay();
+            renderCardBufferTagsCloud();
         }
 
         function filterTagValuesDisplay(prefix) {
-            renderCardTagValuesDisplay();
-            renderFilterTagValuesDisplay();
+            if (prefix === 'card') renderCardTagValuesDisplay();
+            if (prefix === 'search') renderFilterTagValuesDisplay();
         }
 
         function renderCardTagValuesDisplay() {
-            const key = document.getElementById('card-tag-key-select').value;
+            const key = currentSelectingCardKey;
             if (!key || !appState.tags[key]) return;
 
             const filterText = document.getElementById('card-val-search').value.toLowerCase();
             const tagDef = appState.tags[key];
             const cloud = document.getElementById('card-tag-values-cloud');
-            
-            const existingSelected = cardBufferTags[key] || [];
 
             cloud.innerHTML = tagDef.values
                 .filter(v => v.toLowerCase().includes(filterText))
                 .map(v => {
-                    const isSelected = existingSelected.includes(v);
-                    return `<span class="chip chip-selectable ${isSelected ? 'selected' : ''}" onclick="toggleCardTagValueSelection('${key}', '${v}')">${v}</span>`;
+                    const isSelected = currentSelectingCardValues.includes(v);
+                    return `<span class="chip chip-selectable ${isSelected ? 'selected' : ''}" onclick="toggleCardTagValueSelection('${v}')">${v}</span>`;
                 }).join('');
         }
 
-        function toggleCardTagValueSelection(key, val) {
+        function toggleCardTagValueSelection(val) {
+            const key = currentSelectingCardKey;
+            if (!key || !appState.tags[key]) return;
             const tagDef = appState.tags[key];
-            if (!cardBufferTags[key]) cardBufferTags[key] = [];
 
             if (tagDef.type === 'single') {
-                cardBufferTags[key] = [val];
+                currentSelectingCardValues = [val];
             } else {
-                if (cardBufferTags[key].includes(val)) {
-                    cardBufferTags[key] = cardBufferTags[key].filter(v => v !== val);
+                if (currentSelectingCardValues.includes(val)) {
+                    currentSelectingCardValues = currentSelectingCardValues.filter(v => v !== val);
                 } else {
-                    cardBufferTags[key].push(val);
+                    currentSelectingCardValues.push(val);
                 }
             }
             renderCardTagValuesDisplay();
         }
 
         function addTagToCardBuffer() {
+            if (currentSelectingCardKey) {
+                if (currentSelectingCardValues.length > 0) {
+                    cardBufferTags[currentSelectingCardKey] = [...currentSelectingCardValues];
+                } else {
+                    delete cardBufferTags[currentSelectingCardKey];
+                }
+            }
+
+            currentSelectingCardKey = null;
+            currentSelectingCardValues = [];
             document.getElementById('card-tag-key-select').value = '';
             document.getElementById('card-tag-values-box').classList.add('hidden');
             renderCardBufferTagsCloud();
@@ -1286,6 +1396,12 @@
 
         function removeKeyFromCardBuffer(key) {
             delete cardBufferTags[key];
+            if (currentSelectingCardKey === key) {
+                currentSelectingCardKey = null;
+                currentSelectingCardValues = [];
+                document.getElementById('card-tag-key-select').value = '';
+                document.getElementById('card-tag-values-box').classList.add('hidden');
+            }
             renderCardBufferTagsCloud();
         }
 
@@ -1293,8 +1409,9 @@
             const container = document.getElementById('card-selected-tags-cloud');
             container.innerHTML = Object.keys(cardBufferTags).map(key => {
                 if (!cardBufferTags[key] || cardBufferTags[key].length === 0) return '';
+                const isCurrentlySelected = (key === currentSelectingCardKey);
                 return `
-                    <span class="chip" onclick="editCardTagKey('${key}')" style="cursor:pointer;">
+                    <span class="chip ${isCurrentlySelected ? 'active-editing' : ''}" onclick="editCardTagKey('${key}')" style="cursor:pointer;">
                         <strong>${key}:</strong> ${cardBufferTags[key].join(', ')}
                         <span class="remove-btn" onclick="event.stopPropagation(); removeKeyFromCardBuffer('${key}')">&times;</span>
                     </span>
@@ -1317,6 +1434,7 @@
                 return;
             }
 
+            // Fixed Behavior: Unadded selected dropdown values are ignored on save. Only explicitly added tags (in cardBufferTags) are saved.
             const cleanTags = {};
             Object.keys(cardBufferTags).forEach(k => {
                 if (cardBufferTags[k] && cardBufferTags[k].length > 0) {
@@ -1373,6 +1491,8 @@
             document.getElementById('card-tag-key-select').value = '';
             document.getElementById('card-tag-values-box').classList.add('hidden');
             cardBufferTags = {};
+            currentSelectingCardKey = null;
+            currentSelectingCardValues = [];
             renderCardBufferTagsCloud();
 
             const dict = i18nData[appState.defaults.language] || i18nData.english;
@@ -1392,11 +1512,19 @@
         function onFilterKeyChange() {
             const key = document.getElementById('search-tag-key-select').value;
             const box = document.getElementById('search-tag-values-box');
-            if (!key) { box.classList.add('hidden'); return; }
+            if (!key) { 
+                box.classList.add('hidden'); 
+                currentSelectingFilterKey = null;
+                selectedFilterValues = [];
+                renderActiveFiltersCloud();
+                return; 
+            }
 
+            currentSelectingFilterKey = key;
             selectedFilterValues = activeFilters[key] ? [...activeFilters[key]] : [];
             box.classList.remove('hidden');
             renderFilterTagValuesDisplay();
+            renderActiveFiltersCloud();
         }
 
         function editAppliedFilter(key) {
@@ -1408,7 +1536,7 @@
         }
 
         function renderFilterTagValuesDisplay() {
-            const key = document.getElementById('search-tag-key-select').value;
+            const key = currentSelectingFilterKey;
             if (!key || !appState.tags[key]) return;
 
             const filterText = document.getElementById('search-val-search').value.toLowerCase();
@@ -1433,12 +1561,14 @@
         }
 
         function addFilter() {
-            const key = document.getElementById('search-tag-key-select').value;
+            const key = currentSelectingFilterKey;
             if (key && selectedFilterValues.length > 0) {
                 activeFilters[key] = [...selectedFilterValues];
             } else if (key) {
                 delete activeFilters[key];
             }
+            currentSelectingFilterKey = null;
+            selectedFilterValues = [];
             document.getElementById('search-tag-key-select').value = '';
             document.getElementById('search-tag-values-box').classList.add('hidden');
             renderActiveFiltersCloud();
@@ -1447,15 +1577,24 @@
 
         function removeFilterKey(key) {
             delete activeFilters[key];
+            if (currentSelectingFilterKey === key) {
+                currentSelectingFilterKey = null;
+                selectedFilterValues = [];
+                document.getElementById('search-tag-key-select').value = '';
+                document.getElementById('search-tag-values-box').classList.add('hidden');
+            }
             renderActiveFiltersCloud();
             renderCards();
         }
 
         function resetFilters() {
             activeFilters = {};
+            currentSelectingFilterKey = null;
+            selectedFilterValues = [];
             document.getElementById('search-tag-key-select').value = '';
             document.getElementById('search-tag-values-box').classList.add('hidden');
             document.getElementById('search-card-text').value = '';
+            document.getElementById('search-card-clear-btn').style.display = 'none';
             renderActiveFiltersCloud();
             renderCards();
         }
@@ -1469,8 +1608,9 @@
             else dot.classList.add('hidden');
 
             container.innerHTML = Object.keys(activeFilters).map(key => {
+                const isCurrentlySelected = (key === currentSelectingFilterKey);
                 return `
-                    <span class="chip" onclick="editAppliedFilter('${key}')" style="cursor:pointer;">
+                    <span class="chip ${isCurrentlySelected ? 'active-editing' : ''}" onclick="editAppliedFilter('${key}')" style="cursor:pointer;">
                         <strong>${key}:</strong> ${activeFilters[key].join(', ')}
                         <span class="remove-btn" onclick="event.stopPropagation(); removeFilterKey('${key}')">&times;</span>
                     </span>
@@ -1550,7 +1690,6 @@
             const modal = document.getElementById('download-modal');
             const area = document.getElementById('download-json-area');
 
-            // Explicitly ensure theme is stripped from defaults before export
             const exportState = JSON.parse(JSON.stringify(appState));
             if (exportState.defaults && exportState.defaults.theme) {
                 delete exportState.defaults.theme;
@@ -1626,7 +1765,7 @@
                 if (typeof parsed === 'object' && parsed !== null) {
                     appState = parsed;
                     if (!appState.defaults) appState.defaults = { language: "english", currentView: "search" };
-                    if (appState.defaults.theme) delete appState.defaults.theme; // Remove theme if present in imported state
+                    if (appState.defaults.theme) delete appState.defaults.theme;
                     if (!appState.tags) appState.tags = {};
                     if (!appState.cards) appState.cards = [];
 
