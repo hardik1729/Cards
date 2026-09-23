@@ -157,15 +157,22 @@
             cursor: pointer;
             background-color: var(--bg-color);
             color: var(--text-color);
+            border: 1px solid var(--border-color);
             transition: var(--transition);
             display: flex;
             align-items: center;
             font-weight: 500;
         }
 
-        .menu-item:hover, .menu-item.active {
-            background-color: var(--primary-color);
-            color: var(--primary-text-color);
+        .menu-item:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .menu-item.active {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            border: 1.5px solid var(--primary-color);
+            font-weight: 600;
         }
 
         /* Container & Sticky Top Controls */
@@ -247,6 +254,36 @@
             flex: 1;
         }
 
+        /* Single Select UI Group (Pill Options) */
+        .single-select-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .single-select-option {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 14px;
+            user-select: none;
+            transition: var(--transition);
+        }
+
+        .single-select-option:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .single-select-option.selected {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            border: 1.5px solid var(--primary-color);
+            font-weight: 600;
+        }
+
         /* Custom Tag/Filter Selector Dropdown Area */
         .tag-selector-box {
             border: 1px solid var(--border-color);
@@ -294,9 +331,9 @@
         }
 
         .chip-selectable.selected {
-            background-color: var(--primary-color);
-            color: var(--primary-text-color);
-            border-color: var(--primary-color);
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            border: 1.5px solid var(--primary-color);
             font-weight: 600;
         }
 
@@ -491,6 +528,17 @@
             display: inline-block;
         }
 
+        .import-export-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .import-export-row .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -637,10 +685,10 @@
                         </div>
                         <div class="form-group">
                             <label data-i18n="lbl_select_type">Selection Type</label>
-                            <select id="tag-type-select">
-                                <option value="single" data-i18n="opt_single">Single Select</option>
-                                <option value="multi" data-i18n="opt_multi">Multi Select</option>
-                            </select>
+                            <div class="single-select-group" id="tag-type-select-group">
+                                <div class="single-select-option selected" data-value="single" onclick="setSelectionType('single')" data-i18n="opt_single">Single Select</div>
+                                <div class="single-select-option" data-value="multi" onclick="setSelectionType('multi')" data-i18n="opt_multi">Multi Select</div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label data-i18n="lbl_tag_values">Add Values</label>
@@ -672,23 +720,31 @@
         </div>
         <div class="form-group">
             <label data-i18n="lbl_language">Language</label>
-            <select id="lang-select" onchange="changeLanguage(this.value)">
-                <option value="english">English</option>
-                <option value="hindi">हिन्दी (Hindi)</option>
-            </select>
+            <div class="single-select-group" id="lang-select-group">
+                <div class="single-select-option selected" data-value="english" onclick="changeLanguage('english')" data-i18n="opt_english">English</div>
+                <div class="single-select-option" data-value="hindi" onclick="changeLanguage('hindi')" data-i18n="opt_hindi">हिन्दी (Hindi)</div>
+            </div>
         </div>
         <div class="form-group">
             <label data-i18n="lbl_theme">Theme</label>
-            <select id="theme-select" onchange="changeThemeMode(this.value)">
-                <option value="system" data-i18n="opt_system">System Default</option>
-                <option value="dark" data-i18n="opt_dark">Dark</option>
-                <option value="light" data-i18n="opt_light">Light</option>
-            </select>
+            <div class="single-select-group" id="theme-select-group">
+                <div class="single-select-option" data-value="system" onclick="changeThemeMode('system')" data-i18n="opt_system">System Default</div>
+                <div class="single-select-option" data-value="light" onclick="changeThemeMode('light')" data-i18n="opt_light">Light</div>
+                <div class="single-select-option" data-value="dark" onclick="changeThemeMode('dark')" data-i18n="opt_dark">Dark</div>
+            </div>
         </div>
         <hr style="border-color: var(--border-color);">
-        <div class="form-group" style="gap: 10px;">
-            <button class="btn" style="justify-content: center;" onclick="openDownloadModal()" data-i18n="btn_download_state">Export State (JSON)</button>
-            <button class="btn" style="justify-content: center;" onclick="openUploadModal()" data-i18n="btn_upload_state">Import State (JSON)</button>
+        <div class="form-group">
+            <div class="import-export-row">
+                <button class="btn" onclick="openUploadModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <span data-i18n="btn_upload_state">Import State (JSON)</span>
+                </button>
+                <button class="btn" onclick="openDownloadModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <span data-i18n="btn_download_state">Export State (JSON)</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -731,7 +787,7 @@
         // --- Translations Dictionary ---
         const i18nData = {
             english: {
-				title_menu: "Menu",
+                title_menu: "Menu",
                 nav_search: "Search Cards",
                 nav_create_card: "Create Cards",
                 nav_create_tag: "Manage Tags",
@@ -752,7 +808,7 @@
                 btn_save_card: "Save Card",
                 title_create_tag: "Define New Tag Key & Values",
                 title_edit_tag: "Edit Tag Key & Values",
-                lbl_tag_key: "Tag Key Name",
+                lbl_tag_key: "Tag Key Name *",
                 ph_tag_key: "e.g. Priority",
                 lbl_select_type: "Selection Type",
                 opt_single: "Single Select",
@@ -764,12 +820,14 @@
                 ph_search_tags: "Search tags by key or value...",
                 title_settings: "Settings",
                 lbl_language: "Language",
+                opt_english: "English",
+                opt_hindi: "हिन्दी (Hindi)",
                 lbl_theme: "Theme",
-                opt_system: "System Default",
+                opt_system: "System",
                 opt_dark: "Dark",
                 opt_light: "Light",
-                btn_download_state: "Export State (JSON)",
-                btn_upload_state: "Import State (JSON)",
+                btn_download_state: "Export",
+                btn_upload_state: "Import",
                 modal_export_title: "Export Application State",
                 btn_copy: "Copy to Clipboard",
                 btn_download_file: "Download File",
@@ -782,7 +840,7 @@
                 msg_empty_name: "Please enter a card name."
             },
             hindi: {
-				title_menu: "मेन्यू",
+                title_menu: "मेन्यू",
                 nav_search: "कार्ड खोजें",
                 nav_create_card: "कार्ड बनाएं",
                 nav_create_tag: "टैग प्रबंधित करें",
@@ -803,11 +861,11 @@
                 btn_save_card: "कार्ड सहेजें",
                 title_create_tag: "नया टैग कुंजी और मान परिभाषित करें",
                 title_edit_tag: "टैग कुंजी और मान संपादित करें",
-                lbl_tag_key: "टैग कुंजी नाम",
+                lbl_tag_key: "टैग कुंजी नाम *",
                 ph_tag_key: "उदा. प्राथमिकता",
                 lbl_select_type: "चयन प्रकार",
-                opt_single: "एकल चयन (Single Select)",
-                opt_multi: "बहु चयन (Multi Select)",
+                opt_single: "एकल चयन",
+                opt_multi: "बहु चयन",
                 lbl_tag_values: "मान जोड़ें",
                 ph_tag_value: "उदा. उच्च",
                 btn_add: "जोड़ें",
@@ -815,12 +873,14 @@
                 ph_search_tags: "कुंजी या मान द्वारा टैग खोजें...",
                 title_settings: "सेटिंग्स",
                 lbl_language: "भाषा",
+                opt_english: "English",
+                opt_hindi: "हिन्दी (Hindi)",
                 lbl_theme: "थीम",
-                opt_system: "सिस्टम डिफ़ॉल्ट",
+                opt_system: "सिस्टम",
                 opt_dark: "डार्क",
                 opt_light: "लाइट",
-                btn_download_state: "स्थिति निर्यात करें (JSON)",
-                btn_upload_state: "स्थिति आयात करें (JSON)",
+                btn_download_state: "निर्यात",
+                btn_upload_state: "आयात",
                 modal_export_title: "आवेदन स्थिति निर्यात करें",
                 btn_copy: "क्लिपबोर्ड पर कॉपी करें",
                 btn_download_file: "फ़ाइल डाउनलोड करें",
@@ -845,6 +905,7 @@
         };
 
         let currentThemeMode = localStorage.getItem('app_theme_mode') || 'system';
+        let currentTagType = 'single';
 
         // Temporary Component Buffer States
         let tagBufferValues = [];
@@ -967,6 +1028,11 @@
         // --- Language & Theme Handlers ---
         function changeLanguage(lang) {
             appState.defaults.language = lang;
+            
+            document.querySelectorAll('#lang-select-group .single-select-option').forEach(el => {
+                el.classList.toggle('selected', el.getAttribute('data-value') === lang);
+            });
+
             applyLanguage();
             updateHeaderTitle();
             saveStateToStorage();
@@ -974,7 +1040,11 @@
 
         function applyLanguage() {
             const lang = appState.defaults.language || 'english';
-            document.getElementById('lang-select').value = lang;
+            
+            document.querySelectorAll('#lang-select-group .single-select-option').forEach(el => {
+                el.classList.toggle('selected', el.getAttribute('data-value') === lang);
+            });
+
             const dict = i18nData[lang] || i18nData.english;
 
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -991,11 +1061,18 @@
         function changeThemeMode(mode) {
             currentThemeMode = mode;
             localStorage.setItem('app_theme_mode', mode);
+
+            document.querySelectorAll('#theme-select-group .single-select-option').forEach(el => {
+                el.classList.toggle('selected', el.getAttribute('data-value') === mode);
+            });
+
             applyTheme();
         }
 
         function applyTheme() {
-            document.getElementById('theme-select').value = currentThemeMode;
+            document.querySelectorAll('#theme-select-group .single-select-option').forEach(el => {
+                el.classList.toggle('selected', el.getAttribute('data-value') === currentThemeMode);
+            });
 
             let targetTheme = currentThemeMode;
             if (currentThemeMode === 'system') {
@@ -1006,6 +1083,13 @@
         }
 
         // --- TAG MANAGEMENT (Tab 1) ---
+        function setSelectionType(type) {
+            currentTagType = type;
+            document.querySelectorAll('#tag-type-select-group .single-select-option').forEach(el => {
+                el.classList.toggle('selected', el.getAttribute('data-value') === type);
+            });
+        }
+
         function addValueToTagBuffer() {
             const valInput = document.getElementById('tag-value-input');
             const val = valInput.value.trim();
@@ -1034,7 +1118,7 @@
         function saveTagKey() {
             const keyInput = document.getElementById('tag-key-input');
             const key = keyInput.value.trim();
-            const type = document.getElementById('tag-type-select').value;
+            const type = currentTagType;
 
             if (!key) return;
 
@@ -1072,7 +1156,7 @@
             editingTagKey = key;
             const tag = appState.tags[key];
             document.getElementById('tag-key-input').value = key;
-            document.getElementById('tag-type-select').value = tag.type;
+            setSelectionType(tag.type);
             tagBufferValues = [...tag.values];
             renderTagBufferCloud();
 
@@ -1097,6 +1181,7 @@
             editingTagKey = null;
             document.getElementById('tag-key-input').value = '';
             document.getElementById('tag-value-input').value = '';
+            setSelectionType('single');
             tagBufferValues = [];
             renderTagBufferCloud();
 
