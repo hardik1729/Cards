@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,7 @@
             --surface-color: #1e1e1e;
             --surface-hover: #2a2a2a;
             --primary-color: #bb86fc;
+            --primary-text-color: #000000;
             --primary-variant: #3700b3;
             --secondary-color: #03dac6;
             --text-color: #e0e0e0;
@@ -26,6 +27,7 @@
             --surface-color: #ffffff;
             --surface-hover: #f0f0f0;
             --primary-color: #6200ee;
+            --primary-text-color: #ffffff;
             --primary-variant: #3700b3;
             --secondary-color: #018786;
             --text-color: #212121;
@@ -70,6 +72,11 @@
             display: flex;
             align-items: center;
             gap: 12px;
+        }
+
+        .active-section-title {
+            font-weight: 600;
+            font-size: 16px;
         }
 
         select, input[type="text"], textarea {
@@ -125,7 +132,7 @@
 
         .btn-primary {
             background-color: var(--primary-color);
-            color: #000;
+            color: var(--primary-text-color) !important;
             font-weight: 600;
             border: none;
         }
@@ -133,6 +140,32 @@
         .btn-primary:hover {
             opacity: 0.9;
             background-color: var(--primary-color);
+        }
+
+        /* Menu Nav Drawer Items */
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .menu-item {
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: var(--primary-color);
+            color: var(--primary-text-color);
         }
 
         /* Container & Sticky Top Controls */
@@ -262,8 +295,9 @@
 
         .chip-selectable.selected {
             background-color: var(--primary-color);
-            color: #000;
+            color: var(--primary-text-color);
             border-color: var(--primary-color);
+            font-weight: 600;
         }
 
         /* Card Displays */
@@ -326,7 +360,6 @@
             border-radius: 4px;
         }
 
-        /* Prominent delete icon for item cards */
         .item-card-header .remove-btn {
             font-size: 24px;
             font-weight: bold;
@@ -334,7 +367,7 @@
             padding: 2px 8px;
         }
 
-        /* Side Settings Drawer */
+        /* Drawers */
         .drawer-overlay {
             position: fixed;
             top: 0;
@@ -356,13 +389,11 @@
         .drawer {
             position: fixed;
             top: 0;
-            right: -320px;
             width: 300px;
             height: 100vh;
             background-color: var(--surface-color);
-            border-left: 1px solid var(--border-color);
             z-index: 201;
-            transition: right 0.3s ease;
+            transition: transform 0.3s ease;
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -370,8 +401,20 @@
             box-shadow: var(--shadow);
         }
 
-        .drawer.active {
+        .drawer-left {
+            left: 0;
+            transform: translateX(-100%);
+            border-right: 1px solid var(--border-color);
+        }
+
+        .drawer-right {
             right: 0;
+            transform: translateX(100%);
+            border-left: 1px solid var(--border-color);
+        }
+
+        .drawer.active {
+            transform: translateX(0);
         }
 
         .drawer-header {
@@ -382,7 +425,7 @@
             padding-bottom: 10px;
         }
 
-        /* Full Page Popup Windows */
+        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -456,18 +499,31 @@
     <!-- Header Navigation -->
     <header>
         <div class="nav-left">
-            <select id="view-select" onchange="switchView(this.value)">
-                <option value="search" data-i18n="nav_search">Search Cards</option>
-                <option value="create_card" data-i18n="nav_create_card">Create Cards</option>
-                <option value="create_tag" data-i18n="nav_create_tag">Manage Tags</option>
-            </select>
+            <button class="icon-btn" onclick="toggleMenuDrawer(true)" title="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <span id="active-section-name" class="active-section-title"></span>
         </div>
         <div>
-            <button class="icon-btn" onclick="toggleDrawer(true)" title="Settings">
+            <button class="icon-btn" onclick="toggleSettingsDrawer(true)" title="Settings">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </button>
         </div>
     </header>
+
+    <!-- Side Navigation Menu Drawer -->
+    <div id="drawer-overlay" class="drawer-overlay" onclick="closeAllDrawers()"></div>
+    <div id="menu-drawer" class="drawer drawer-left">
+        <div class="drawer-header">
+            <h3>Menu</h3>
+            <button class="icon-btn" onclick="toggleMenuDrawer(false)">&times;</button>
+        </div>
+        <ul class="menu-list">
+            <li class="menu-item" data-view="search" onclick="selectSection('search')" data-i18n="nav_search">Search Cards</li>
+            <li class="menu-item" data-view="create_card" onclick="selectSection('create_card')" data-i18n="nav_create_card">Create Cards</li>
+            <li class="menu-item" data-view="create_tag" onclick="selectSection('create_tag')" data-i18n="nav_create_tag">Manage Tags</li>
+        </ul>
+    </div>
 
     <!-- Main Content Area -->
     <main>
@@ -609,11 +665,10 @@
     </main>
 
     <!-- Side Settings Drawer -->
-    <div id="drawer-overlay" class="drawer-overlay" onclick="toggleDrawer(false)"></div>
-    <div id="drawer" class="drawer">
+    <div id="settings-drawer" class="drawer drawer-right">
         <div class="drawer-header">
             <h3 data-i18n="title_settings">Settings</h3>
-            <button class="icon-btn" onclick="toggleDrawer(false)">&times;</button>
+            <button class="icon-btn" onclick="toggleSettingsDrawer(false)">&times;</button>
         </div>
         <div class="form-group">
             <label data-i18n="lbl_language">Language</label>
@@ -624,7 +679,8 @@
         </div>
         <div class="form-group">
             <label data-i18n="lbl_theme">Theme</label>
-            <select id="theme-select" onchange="changeTheme(this.value)">
+            <select id="theme-select" onchange="changeThemeMode(this.value)">
+                <option value="system" data-i18n="opt_system">System Default</option>
                 <option value="dark" data-i18n="opt_dark">Dark</option>
                 <option value="light" data-i18n="opt_light">Light</option>
             </select>
@@ -708,6 +764,7 @@
                 title_settings: "Settings",
                 lbl_language: "Language",
                 lbl_theme: "Theme",
+                opt_system: "System Default",
                 opt_dark: "Dark",
                 opt_light: "Light",
                 btn_download_state: "Export State (JSON)",
@@ -757,6 +814,7 @@
                 title_settings: "सेटिंग्स",
                 lbl_language: "भाषा",
                 lbl_theme: "थीम",
+                opt_system: "सिस्टम डिफ़ॉल्ट",
                 opt_dark: "डार्क",
                 opt_light: "लाइट",
                 btn_download_state: "स्थिति निर्यात करें (JSON)",
@@ -778,12 +836,13 @@
         let appState = {
             defaults: {
                 language: "english",
-                theme: "dark",
                 currentView: "search"
             },
             tags: {},
             cards: []
         };
+
+        let currentThemeMode = localStorage.getItem('app_theme_mode') || 'system';
 
         // Temporary Component Buffer States
         let tagBufferValues = [];
@@ -794,6 +853,11 @@
 
         let activeFilters = {}; // { Key: [values] }
         let selectedFilterValues = [];
+
+        // System Preference Listener
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (currentThemeMode === 'system') applyTheme();
+        });
 
         // --- Core Lifecycle & LocalStorage Persistence ---
         window.addEventListener('DOMContentLoaded', () => {
@@ -812,23 +876,29 @@
             if (saved) {
                 try {
                     appState = JSON.parse(saved);
-                    if(!appState.defaults) appState.defaults = { language: "english", theme: "dark", currentView: "search" };
-                    if(!appState.tags) appState.tags = {};
-                    if(!appState.cards) appState.cards = [];
+                    if (!appState.defaults) appState.defaults = { language: "english", currentView: "search" };
+                    if (appState.defaults.theme) delete appState.defaults.theme; // Ensure theme is removed if loaded from old state
+                    if (!appState.tags) appState.tags = {};
+                    if (!appState.cards) appState.cards = [];
                 } catch(e) {
                     console.error("Failed to load state", e);
                 }
             }
         }
 
-        // --- View & Navigation Navigation ---
+        // --- Navigation ---
         function switchView(viewName) {
             appState.defaults.currentView = viewName;
-            document.getElementById('view-select').value = viewName;
-            
+
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             const activeView = document.getElementById(`view-${viewName}`);
-            if(activeView) activeView.classList.remove('hidden');
+            if (activeView) activeView.classList.remove('hidden');
+
+            document.querySelectorAll('.menu-item').forEach(el => {
+                el.classList.toggle('active', el.getAttribute('data-view') === viewName);
+            });
+
+            updateHeaderTitle();
 
             if (viewName === 'search') renderCards();
             if (viewName === 'create_tag') renderTagsList();
@@ -837,29 +907,66 @@
             saveStateToStorage();
         }
 
-        function toggleDrawer(open) {
-            const drawer = document.getElementById('drawer');
+        function updateHeaderTitle() {
+            const viewName = appState.defaults.currentView;
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            const titleMap = {
+                search: dict.nav_search,
+                create_card: dict.nav_create_card,
+                create_tag: dict.nav_create_tag
+            };
+            document.getElementById('active-section-name').textContent = titleMap[viewName] || '';
+        }
+
+        function selectSection(viewName) {
+            switchView(viewName);
+            closeAllDrawers();
+        }
+
+        function toggleMenuDrawer(open) {
+            const drawer = document.getElementById('menu-drawer');
             const overlay = document.getElementById('drawer-overlay');
-            if(open) {
+            if (open) {
+                closeAllDrawers();
                 overlay.classList.add('active');
                 drawer.classList.add('active');
             } else {
-                overlay.classList.remove('active');
                 drawer.classList.remove('active');
+                overlay.classList.remove('active');
             }
+        }
+
+        function toggleSettingsDrawer(open) {
+            const drawer = document.getElementById('settings-drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            if (open) {
+                closeAllDrawers();
+                overlay.classList.add('active');
+                drawer.classList.add('active');
+            } else {
+                drawer.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        function closeAllDrawers() {
+            document.getElementById('menu-drawer').classList.remove('active');
+            document.getElementById('settings-drawer').classList.remove('active');
+            document.getElementById('drawer-overlay').classList.remove('active');
         }
 
         function toggleAccordion(id) {
             const acc = document.getElementById(id);
             acc.classList.toggle('open');
             const icon = acc.querySelector('.acc-icon');
-            if(icon) icon.textContent = acc.classList.contains('open') ? '–' : '+';
+            if (icon) icon.textContent = acc.classList.contains('open') ? '–' : '+';
         }
 
         // --- Language & Theme Handlers ---
         function changeLanguage(lang) {
             appState.defaults.language = lang;
             applyLanguage();
+            updateHeaderTitle();
             saveStateToStorage();
         }
 
@@ -870,25 +977,30 @@
 
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if(dict[key]) el.textContent = dict[key];
+                if (dict[key]) el.textContent = dict[key];
             });
 
             document.querySelectorAll('[data-i18n-ph]').forEach(el => {
                 const key = el.getAttribute('data-i18n-ph');
-                if(dict[key]) el.placeholder = dict[key];
+                if (dict[key]) el.placeholder = dict[key];
             });
         }
 
-        function changeTheme(theme) {
-            appState.defaults.theme = theme;
+        function changeThemeMode(mode) {
+            currentThemeMode = mode;
+            localStorage.setItem('app_theme_mode', mode);
             applyTheme();
-            saveStateToStorage();
         }
 
         function applyTheme() {
-            const theme = appState.defaults.theme || 'dark';
-            document.getElementById('theme-select').value = theme;
-            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('theme-select').value = currentThemeMode;
+
+            let targetTheme = currentThemeMode;
+            if (currentThemeMode === 'system') {
+                targetTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            document.documentElement.setAttribute('data-theme', targetTheme);
         }
 
         // --- TAG MANAGEMENT (Tab 1) ---
@@ -924,10 +1036,8 @@
 
             if (!key) return;
 
-            // Handle rename if key edited
             if (editingTagKey && editingTagKey !== key) {
                 delete appState.tags[editingTagKey];
-                // Update key in cards
                 appState.cards.forEach(card => {
                     if (card.tags[editingTagKey]) {
                         card.tags[key] = card.tags[editingTagKey];
@@ -941,7 +1051,6 @@
                 values: [...tagBufferValues]
             };
 
-            // Clean up card tags if single select constraint updated or values removed
             appState.cards.forEach(card => {
                 if (card.tags[key]) {
                     card.tags[key] = card.tags[key].filter(v => tagBufferValues.includes(v));
@@ -969,16 +1078,14 @@
             document.getElementById('tag-form-title').textContent = dict.title_edit_tag;
 
             const acc = document.getElementById('manage-tag-accordion');
-            if(!acc.classList.contains('open')) toggleAccordion('manage-tag-accordion');
+            if (!acc.classList.contains('open')) toggleAccordion('manage-tag-accordion');
         }
 
         function deleteTag(key) {
             delete appState.tags[key];
-            // Cascade delete tag from all cards
             appState.cards.forEach(card => {
                 delete card.tags[key];
             });
-            // Clean up filters
             delete activeFilters[key];
             renderTagsList();
             saveStateToStorage();
@@ -1009,7 +1116,7 @@
                     const card = document.createElement('div');
                     card.className = 'item-card';
                     card.onclick = (e) => {
-                        if(!e.target.classList.contains('remove-btn')) editTag(key);
+                        if (!e.target.classList.contains('remove-btn')) editTag(key);
                     };
 
                     card.innerHTML = `
@@ -1039,7 +1146,7 @@
         function onCardKeyChange() {
             const key = document.getElementById('card-tag-key-select').value;
             const box = document.getElementById('card-tag-values-box');
-            if(!key) { box.classList.add('hidden'); return; }
+            if (!key) { box.classList.add('hidden'); return; }
 
             box.classList.remove('hidden');
             renderCardTagValuesDisplay();
@@ -1052,7 +1159,7 @@
 
         function renderCardTagValuesDisplay() {
             const key = document.getElementById('card-tag-key-select').value;
-            if(!key || !appState.tags[key]) return;
+            if (!key || !appState.tags[key]) return;
 
             const filterText = document.getElementById('card-val-search').value.toLowerCase();
             const tagDef = appState.tags[key];
@@ -1070,7 +1177,7 @@
 
         function toggleCardTagValueSelection(key, val) {
             const tagDef = appState.tags[key];
-            if(!cardBufferTags[key]) cardBufferTags[key] = [];
+            if (!cardBufferTags[key]) cardBufferTags[key] = [];
 
             if (tagDef.type === 'single') {
                 cardBufferTags[key] = [val];
@@ -1098,7 +1205,7 @@
         function renderCardBufferTagsCloud() {
             const container = document.getElementById('card-selected-tags-cloud');
             container.innerHTML = Object.keys(cardBufferTags).map(key => {
-                if(!cardBufferTags[key] || cardBufferTags[key].length === 0) return '';
+                if (!cardBufferTags[key] || cardBufferTags[key].length === 0) return '';
                 return `
                     <span class="chip" onclick="editCardTagKey('${key}')" style="cursor:pointer;">
                         <strong>${key}:</strong> ${cardBufferTags[key].join(', ')}
@@ -1118,15 +1225,14 @@
             const name = nameInput.value.trim();
             const desc = document.getElementById('card-desc-input').value.trim();
 
-            if(!name) {
+            if (!name) {
                 alert((i18nData[appState.defaults.language]||i18nData.english).msg_empty_name);
                 return;
             }
 
-            // Clean up empty tag arrays
             const cleanTags = {};
             Object.keys(cardBufferTags).forEach(k => {
-                if(cardBufferTags[k] && cardBufferTags[k].length > 0) {
+                if (cardBufferTags[k] && cardBufferTags[k].length > 0) {
                     cleanTags[k] = [...cardBufferTags[k]];
                 }
             });
@@ -1153,7 +1259,7 @@
 
         function editCard(cardId) {
             const card = appState.cards.find(c => c.id === cardId);
-            if(!card) return;
+            if (!card) return;
 
             editingCardId = card.id;
             document.getElementById('card-name-input').value = card.name;
@@ -1199,7 +1305,7 @@
         function onFilterKeyChange() {
             const key = document.getElementById('search-tag-key-select').value;
             const box = document.getElementById('search-tag-values-box');
-            if(!key) { box.classList.add('hidden'); return; }
+            if (!key) { box.classList.add('hidden'); return; }
 
             selectedFilterValues = activeFilters[key] ? [...activeFilters[key]] : [];
             box.classList.remove('hidden');
@@ -1208,7 +1314,7 @@
 
         function editAppliedFilter(key) {
             const acc = document.getElementById('search-filter-accordion');
-            if(!acc.classList.contains('open')) toggleAccordion('search-filter-accordion');
+            if (!acc.classList.contains('open')) toggleAccordion('search-filter-accordion');
 
             document.getElementById('search-tag-key-select').value = key;
             onFilterKeyChange();
@@ -1216,7 +1322,7 @@
 
         function renderFilterTagValuesDisplay() {
             const key = document.getElementById('search-tag-key-select').value;
-            if(!key || !appState.tags[key]) return;
+            if (!key || !appState.tags[key]) return;
 
             const filterText = document.getElementById('search-val-search').value.toLowerCase();
             const tagDef = appState.tags[key];
@@ -1272,7 +1378,7 @@
             const dot = document.getElementById('filter-active-dot');
             
             const hasFilters = Object.keys(activeFilters).length > 0;
-            if(hasFilters) dot.classList.remove('hidden');
+            if (hasFilters) dot.classList.remove('hidden');
             else dot.classList.add('hidden');
 
             container.innerHTML = Object.keys(activeFilters).map(key => {
@@ -1289,11 +1395,9 @@
             const textQuery = document.getElementById('search-card-text').value.toLowerCase();
             
             return appState.cards.filter(card => {
-                // Text matching
                 const matchesText = card.name.toLowerCase().includes(textQuery);
                 if (!matchesText) return false;
 
-                // Tag Filter Matching (AND across keys, OR within key values)
                 const filterKeys = Object.keys(activeFilters);
                 for (let key of filterKeys) {
                     const allowedVals = activeFilters[key];
@@ -1301,7 +1405,7 @@
 
                     const cardVals = card.tags ? (card.tags[key] || []) : [];
                     const hasMatch = cardVals.some(v => allowedVals.includes(v));
-                    if (!hasMatch) return false; // Fail AND condition
+                    if (!hasMatch) return false;
                 }
 
                 return true;
@@ -1319,7 +1423,7 @@
                 cardEl.className = 'item-card';
                 cardEl.id = `card-elem-${card.id}`;
                 cardEl.onclick = (e) => {
-                    if(!e.target.classList.contains('remove-btn')) editCard(card.id);
+                    if (!e.target.classList.contains('remove-btn')) editCard(card.id);
                 };
 
                 const tagsHtml = card.tags ? Object.keys(card.tags).map(k => `
@@ -1340,11 +1444,11 @@
 
         function triggerSurpriseMe() {
             const filtered = getFilteredCards();
-            if(filtered.length === 0) return;
+            if (filtered.length === 0) return;
 
             const randomCard = filtered[Math.floor(Math.random() * filtered.length)];
             const el = document.getElementById(`card-elem-${randomCard.id}`);
-            if(el) {
+            if (el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 el.classList.add('highlighted');
                 setTimeout(() => {
@@ -1355,15 +1459,22 @@
 
         // --- IMPORT / EXPORT (SETTINGS DRAWER) ---
         function openDownloadModal() {
-            toggleDrawer(false);
+            closeAllDrawers();
             const modal = document.getElementById('download-modal');
             const area = document.getElementById('download-json-area');
-            area.value = JSON.stringify(appState, null, 2);
+
+            // Explicitly ensure theme is stripped from defaults before export
+            const exportState = JSON.parse(JSON.stringify(appState));
+            if (exportState.defaults && exportState.defaults.theme) {
+                delete exportState.defaults.theme;
+            }
+
+            area.value = JSON.stringify(exportState, null, 2);
             modal.classList.add('active');
         }
 
         function openUploadModal() {
-            toggleDrawer(false);
+            closeAllDrawers();
             const modal = document.getElementById('upload-modal');
             document.getElementById('upload-json-area').value = '';
             modal.classList.add('active');
@@ -1396,7 +1507,12 @@
         }
 
         function downloadStateFile() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const exportState = JSON.parse(JSON.stringify(appState));
+            if (exportState.defaults && exportState.defaults.theme) {
+                delete exportState.defaults.theme;
+            }
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportState, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
             downloadAnchor.setAttribute("download", `app_state_${Date.now()}.json`);
@@ -1422,9 +1538,10 @@
                 const parsed = JSON.parse(jsonText);
                 if (typeof parsed === 'object' && parsed !== null) {
                     appState = parsed;
-                    if(!appState.defaults) appState.defaults = { language: "english", theme: "dark", currentView: "search" };
-                    if(!appState.tags) appState.tags = {};
-                    if(!appState.cards) appState.cards = [];
+                    if (!appState.defaults) appState.defaults = { language: "english", currentView: "search" };
+                    if (appState.defaults.theme) delete appState.defaults.theme; // Remove theme if present in imported state
+                    if (!appState.tags) appState.tags = {};
+                    if (!appState.cards) appState.cards = [];
 
                     saveStateToStorage();
                     applyLanguage();
