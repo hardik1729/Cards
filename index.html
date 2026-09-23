@@ -515,7 +515,7 @@
     <div id="drawer-overlay" class="drawer-overlay" onclick="closeAllDrawers()"></div>
     <div id="menu-drawer" class="drawer drawer-left">
         <div class="drawer-header">
-            <h3>Menu</h3>
+            <h3 data-i18n="title_menu">Menu</h3>
             <button class="icon-btn" onclick="toggleMenuDrawer(false)">&times;</button>
         </div>
         <ul class="menu-list">
@@ -731,6 +731,7 @@
         // --- Translations Dictionary ---
         const i18nData = {
             english: {
+				title_menu: "Menu",
                 nav_search: "Search Cards",
                 nav_create_card: "Create Cards",
                 nav_create_tag: "Manage Tags",
@@ -781,6 +782,7 @@
                 msg_empty_name: "Please enter a card name."
             },
             hindi: {
+				title_menu: "मेन्यू",
                 nav_search: "कार्ड खोजें",
                 nav_create_card: "कार्ड बनाएं",
                 nav_create_tag: "टैग प्रबंधित करें",
