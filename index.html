@@ -744,7 +744,7 @@
                             <label data-i18n="lbl_tag_values">Add Values</label>
                             <div class="form-row">
                                 <input type="text" id="tag-value-input" placeholder="e.g. High" data-i18n-ph="ph_tag_value">
-                                <button class="btn" onclick="addValueToTagBuffer()" data-i18n="btn_add">Add</button>
+                                <button class="btn" id="tag-val-submit-btn" onclick="addValueToTagBuffer()" data-i18n="btn_add">Add</button>
                             </div>
                         </div>
                         <div id="tag-values-buffer-cloud" class="tag-values-cloud" style="margin-bottom: 12px;"></div>
@@ -869,6 +869,7 @@
                 lbl_tag_values: "Add Values",
                 ph_tag_value: "e.g. High",
                 btn_add: "Add",
+                btn_update: "Update",
                 btn_save_tag: "Save Tag Definition",
                 ph_search_tags: "Search tags by key or value...",
                 title_settings: "Settings",
@@ -923,6 +924,7 @@
                 lbl_tag_values: "मान जोड़ें",
                 ph_tag_value: "उदा. उच्च",
                 btn_add: "जोड़ें",
+                btn_update: "अद्यतन",
                 btn_save_tag: "टैग परिभाषा सहेजें",
                 ph_search_tags: "कुंजी या मान द्वारा टैग खोजें...",
                 title_settings: "सेटिंग्स",
@@ -965,6 +967,7 @@
         // Temporary Component Buffer States
         let tagBufferValues = [];
         let editingTagKey = null;
+        let editingValueIndex = null; // Track index of tag value being rewritten/edited
 
         let cardBufferTags = {}; // { Key: [values] }
         let currentSelectingCardKey = null; // Track key being configured in UI
@@ -1141,6 +1144,8 @@
                 const key = el.getAttribute('data-i18n-ph');
                 if (dict[key]) el.placeholder = dict[key];
             });
+
+            updateTagValSubmitBtnLabel();
         }
 
         function changeThemeMode(mode) {
@@ -1175,27 +1180,69 @@
             });
         }
 
-        function addValueToTagBuffer() {
-            const valInput = document.getElementById('tag-value-input');
-            const val = valInput.value.trim();
-            if (val && !tagBufferValues.includes(val)) {
-                tagBufferValues.push(val);
-                renderTagBufferCloud();
-                valInput.value = '';
+        function updateTagValSubmitBtnLabel() {
+            const btn = document.getElementById('tag-val-submit-btn');
+            if (!btn) return;
+
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            if (editingValueIndex !== null) {
+                btn.setAttribute('data-i18n', 'btn_update');
+                btn.textContent = dict.btn_update;
+            } else {
+                btn.setAttribute('data-i18n', 'btn_add');
+                btn.textContent = dict.btn_add;
             }
         }
 
+        function selectValueForEdit(index) {
+            if (index >= 0 && index < tagBufferValues.length) {
+                editingValueIndex = index;
+                document.getElementById('tag-value-input').value = tagBufferValues[index];
+                document.getElementById('tag-value-input').focus();
+                updateTagValSubmitBtnLabel();
+                renderTagBufferCloud();
+            }
+        }
+
+        function addValueToTagBuffer() {
+            const valInput = document.getElementById('tag-value-input');
+            const val = valInput.value.trim();
+            if (!val) return;
+
+            if (editingValueIndex !== null && editingValueIndex >= 0 && editingValueIndex < tagBufferValues.length) {
+                // Rewrite selected tag value at its index
+                tagBufferValues[editingValueIndex] = val;
+                editingValueIndex = null;
+            } else if (!tagBufferValues.includes(val)) {
+                // Add new tag value
+                tagBufferValues.push(val);
+            }
+            updateTagValSubmitBtnLabel();
+            renderTagBufferCloud();
+            valInput.value = '';
+        }
+
         function removeValueFromTagBuffer(val) {
-            tagBufferValues = tagBufferValues.filter(v => v !== val);
+            const index = tagBufferValues.indexOf(val);
+            if (index !== -1) {
+                tagBufferValues.splice(index, 1);
+                if (editingValueIndex === index) {
+                    editingValueIndex = null;
+                    document.getElementById('tag-value-input').value = '';
+                } else if (editingValueIndex > index) {
+                    editingValueIndex--;
+                }
+            }
+            updateTagValSubmitBtnLabel();
             renderTagBufferCloud();
         }
 
         function renderTagBufferCloud() {
             const container = document.getElementById('tag-values-buffer-cloud');
-            container.innerHTML = tagBufferValues.map(v => `
-                <span class="chip">
+            container.innerHTML = tagBufferValues.map((v, idx) => `
+                <span class="chip chip-selectable ${editingValueIndex === idx ? 'selected active-editing' : ''}" onclick="selectValueForEdit(${idx})">
                     ${v}
-                    <span class="remove-btn" onclick="removeValueFromTagBuffer('${v}')">&times;</span>
+                    <span class="remove-btn" onclick="event.stopPropagation(); removeValueFromTagBuffer('${v}')">&times;</span>
                 </span>
             `).join('');
         }
@@ -1210,6 +1257,8 @@
                 alert((i18nData[appState.defaults.language]||i18nData.english).msg_empty_tag_key);
                 return;
             }
+
+            const oldValues = editingTagKey && appState.tags[editingTagKey] ? [...appState.tags[editingTagKey].values] : [];
 
             if (editingTagKey && editingTagKey !== key) {
                 delete appState.tags[editingTagKey];
@@ -1226,9 +1275,24 @@
                 values: [...tagBufferValues]
             };
 
+            // Map renamed tag values appropriately on existing cards
+            const valueMap = {};
+            if (editingTagKey && oldValues.length > 0) {
+                oldValues.forEach((oldVal, idx) => {
+                    if (idx < tagBufferValues.length) {
+                        valueMap[oldVal] = tagBufferValues[idx];
+                    }
+                });
+            }
+
             appState.cards.forEach(card => {
                 if (card.tags[key]) {
+                    // Update rewritten tag values first
+                    card.tags[key] = card.tags[key].map(v => valueMap[v] || v);
+                    // Filter out removed tag values
                     card.tags[key] = card.tags[key].filter(v => tagBufferValues.includes(v));
+                    // Remove duplicate values if any created by mapping
+                    card.tags[key] = [...new Set(card.tags[key])];
                     if (type === 'single' && card.tags[key].length > 1) {
                         card.tags[key] = [card.tags[key][0]];
                     }
@@ -1243,10 +1307,12 @@
 
         function editTag(key) {
             editingTagKey = key;
+            editingValueIndex = null;
             const tag = appState.tags[key];
             document.getElementById('tag-key-input').value = key;
             setSelectionType(tag.type);
             tagBufferValues = [...tag.values];
+            updateTagValSubmitBtnLabel();
             renderTagBufferCloud();
 
             const dict = i18nData[appState.defaults.language] || i18nData.english;
@@ -1268,10 +1334,12 @@
 
         function resetTagForm() {
             editingTagKey = null;
+            editingValueIndex = null;
             document.getElementById('tag-key-input').value = '';
             document.getElementById('tag-value-input').value = '';
             setSelectionType('single');
             tagBufferValues = [];
+            updateTagValSubmitBtnLabel();
             renderTagBufferCloud();
 
             const dict = i18nData[appState.defaults.language] || i18nData.english;
