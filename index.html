@@ -94,12 +94,19 @@
             border-color: var(--primary-color);
         }
 
-        /* Input Container with Clear Cross Button */
+        /* Search + Action Bar Layout */
+        .search-plus-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
         .input-clear-wrapper {
             position: relative;
             display: flex;
             align-items: center;
-            width: 100%;
+            flex: 1;
         }
 
         .input-clear-wrapper input {
@@ -125,6 +132,22 @@
             color: var(--error-color);
         }
 
+        /* Square Plus Buttons matching adjacent input heights */
+        .plus-btn {
+            font-size: 22px;
+            font-weight: bold;
+            aspect-ratio: 1 / 1;
+            height: 35px;
+            width: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 6px;
+        }
+
         .icon-btn {
             background: none;
             border: none;
@@ -143,7 +166,6 @@
             color: var(--primary-color);
         }
 
-        /* Larger Cross Styles for Drawers and Modals */
         .drawer-header .close-btn,
         .modal-header .close-btn {
             font-size: 28px;
@@ -182,6 +204,52 @@
             background-color: var(--primary-color);
         }
 
+        /* Filter & Action Bar Enhancements */
+        .controls-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .controls-row .btn {
+            flex: 1;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .filter-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-btn-text {
+            text-align: center;
+            flex: 1;
+        }
+
+        .filter-reset-icon {
+            position: absolute;
+            right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            line-height: 1;
+            font-size: 14px;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .filter-reset-icon:hover {
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
         /* Menu Nav Drawer Items */
         .menu-list {
             list-style: none;
@@ -215,7 +283,7 @@
             font-weight: 600;
         }
 
-        /* Container & Sticky Top Controls */
+        /* Container & Controls */
         main {
             flex: 1;
             max-width: 800px;
@@ -232,51 +300,11 @@
             padding-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 16px;
-        }
-
-        .collapsible-card {
-            background-color: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
-
-        .collapsible-header {
-            padding: 10px 14px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--surface-color);
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .collapsible-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            user-select: none;
-            flex: 1;
-        }
-
-        .collapsible-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .collapsible-content {
-            padding: 14px;
-            border-top: 1px solid var(--border-color);
-            display: none;
-        }
-
-        .collapsible-card.open .collapsible-content {
-            display: block;
-        }
-
-        /* Form elements grid */
         .form-group {
             margin-bottom: 12px;
             display: flex;
@@ -294,7 +322,6 @@
             flex: 1;
         }
 
-        /* Single Select UI Group (Pill Options) */
         .single-select-group {
             display: flex;
             gap: 8px;
@@ -324,7 +351,6 @@
             font-weight: 600;
         }
 
-        /* Custom Tag/Filter Selector Dropdown Area */
         .tag-selector-box {
             border: 1px solid var(--border-color);
             border-radius: 6px;
@@ -341,7 +367,7 @@
             overflow-y: auto;
         }
 
-        /* Badges & Chips */
+        /* Chips */
         .chip {
             background-color: var(--surface-hover);
             border: 1px solid var(--border-color);
@@ -378,13 +404,12 @@
             font-weight: 600;
         }
 
-        /* Active/Applied Chip Highlighted Border during Selection/Updation */
         .chip.active-editing {
             border: 2px solid var(--primary-color) !important;
             box-shadow: 0 0 6px var(--primary-color);
         }
 
-        /* Card Displays */
+        /* Cards & Tags Displays */
         .cards-container {
             display: flex;
             flex-direction: column;
@@ -451,7 +476,7 @@
             padding: 2px 8px;
         }
 
-        /* Drawers */
+        /* Drawers & Modals */
         .drawer-overlay {
             position: fixed;
             top: 0;
@@ -509,7 +534,6 @@
             padding-bottom: 10px;
         }
 
-        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -533,12 +557,13 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             width: 100%;
-            max-width: 700px;
-            height: 80vh;
+            max-width: 600px;
+            max-height: 85vh;
             display: flex;
             flex-direction: column;
             padding: 16px;
             box-shadow: var(--shadow);
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -546,6 +571,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
         }
 
         .modal-body {
@@ -555,7 +582,7 @@
 
         .modal-body textarea {
             width: 100%;
-            height: 100%;
+            height: 200px;
             resize: none;
             font-family: monospace;
             font-size: 12px;
@@ -565,14 +592,8 @@
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-        }
-
-        .filter-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            display: inline-block;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
         }
 
         .import-export-row {
@@ -597,7 +618,7 @@
             <button class="icon-btn" onclick="toggleMenuDrawer(true)" title="Menu">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
-            <span id="active-section-name" class="active-section-title"></span>
+            <span id="active-section-name" class="active-section-title">Cards</span>
         </div>
         <div>
             <button class="icon-btn" onclick="toggleSettingsDrawer(true)" title="Settings">
@@ -614,156 +635,146 @@
             <button class="icon-btn close-btn" onclick="toggleMenuDrawer(false)">&times;</button>
         </div>
         <ul class="menu-list">
-            <li class="menu-item" data-view="search" onclick="selectSection('search')" data-i18n="nav_search">Search Cards</li>
-            <li class="menu-item" data-view="create_card" onclick="selectSection('create_card')" data-i18n="nav_create_card">Create Cards</li>
-            <li class="menu-item" data-view="create_tag" onclick="selectSection('create_tag')" data-i18n="nav_create_tag">Manage Tags</li>
+            <li class="menu-item active" data-view="cards" onclick="selectSection('cards')" data-i18n="nav_cards">Cards</li>
+            <li class="menu-item" data-view="tags" onclick="selectSection('tags')" data-i18n="nav_tags">Tags</li>
         </ul>
     </div>
 
     <!-- Main Content Area -->
     <main>
-        <!-- TAB 3: SEARCH CARDS (DEFAULT) -->
-        <section id="view-search" class="view-section">
+        <!-- SECTION 1: CARDS -->
+        <section id="view-cards" class="view-section">
             <div class="sticky-controls">
-                <div class="collapsible-card" id="search-filter-accordion">
-                    <div class="collapsible-header">
-                        <div class="collapsible-title" onclick="toggleAccordion('search-filter-accordion')">
-                            <span class="acc-icon">+</span>
-                            <span data-i18n="filter_tags_title">Filter by Tags</span>
-                            <span id="filter-active-dot" class="filter-indicator hidden"></span>
-                        </div>
-                        <div class="collapsible-actions">
-                            <button class="btn btn-primary" onclick="triggerSurpriseMe()" style="padding: 4px 10px; font-size: 12px;" data-i18n="btn_surprise_me">Surprise Me</button>
-                            <button class="icon-btn" onclick="resetFilters()" title="Reset Filters">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="collapsible-content">
-                        <div class="form-group">
-                            <div class="form-row">
-                                <select id="search-tag-key-select" onchange="onFilterKeyChange()" style="flex:1;">
-                                    <option value="" data-i18n="select_tag_key">-- Select Tag Key --</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="search-tag-values-box" class="tag-selector-box hidden">
-                            <div class="form-group">
-                                <input type="text" id="search-val-search" placeholder="Search values..." oninput="filterTagValuesDisplay('search')" data-i18n-ph="ph_search_val">
-                            </div>
-                            <div id="search-tag-values-cloud" class="tag-values-cloud"></div>
-                            <button class="btn btn-primary" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="addFilter()" data-i18n="btn_add_filter">Add Filter</button>
-                        </div>
-                        <div id="active-filters-cloud" class="tag-values-cloud" style="margin-top: 10px;"></div>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
+                <div class="search-plus-bar">
                     <div class="input-clear-wrapper">
                         <input type="text" id="search-card-text" placeholder="Search cards by name..." oninput="handleSearchCardInput()" data-i18n-ph="ph_search_cards">
                         <button class="clear-input-btn" id="search-card-clear-btn" onclick="clearSearchCardInput()">&times;</button>
                     </div>
+                    <button class="btn btn-primary plus-btn" onclick="openCreateCardModal()" title="Create Card">+</button>
+                </div>
+                
+                <div class="controls-row">
+                    <button class="btn filter-btn" onclick="openFilterModal()">
+                        <span id="filter-btn-text" class="filter-btn-text" data-i18n="btn_filter">Filter</span>
+                        <span id="filter-reset-icon" class="filter-reset-icon hidden" onclick="event.stopPropagation(); resetFiltersDirectly();" title="Clear Filters">&#x21bb;</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="triggerSurpriseMe()" data-i18n="btn_surprise_me">Surprise Me</button>
                 </div>
             </div>
 
-            <!-- List of Cards -->
             <div id="cards-list" class="cards-container"></div>
         </section>
 
-        <!-- TAB 2: CREATE CARDS -->
-        <section id="view-create_card" class="view-section hidden">
-            <div class="collapsible-card open">
-                <div class="collapsible-header">
-                    <span class="collapsible-title" id="card-form-title" data-i18n="title_create_card">Create New Card</span>
-                    <div class="collapsible-actions">
-                        <button class="icon-btn" onclick="resetCardForm()" title="Reset Form">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="collapsible-content" style="display: block;">
-                    <div class="form-group">
-                        <label data-i18n="lbl_card_name">Card Name *</label>
-                        <input type="text" id="card-name-input" placeholder="e.g. Dal Baati" data-i18n-ph="ph_card_name">
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="lbl_card_desc">Description (Optional)</label>
-                        <textarea id="card-desc-input" rows="3" placeholder="Enter description..." data-i18n-ph="ph_card_desc"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label data-i18n="lbl_add_tags">Add Tags</label>
-                        <select id="card-tag-key-select" onchange="onCardKeyChange()">
-                            <option value="" data-i18n="select_tag_key">-- Select Tag Key --</option>
-                        </select>
-                    </div>
-
-                    <div id="card-tag-values-box" class="tag-selector-box hidden">
-                        <div class="form-group">
-                            <input type="text" id="card-val-search" placeholder="Search values..." oninput="filterTagValuesDisplay('card')" data-i18n-ph="ph_search_val">
-                        </div>
-                        <div id="card-tag-values-cloud" class="tag-values-cloud"></div>
-                        <button class="btn btn-primary" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="addTagToCardBuffer()" data-i18n="btn_add_tag">Add Tag to Card</button>
-                    </div>
-
-                    <div id="card-selected-tags-cloud" class="tag-values-cloud" style="margin-top: 10px; margin-bottom: 12px;"></div>
-
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="saveCard()" data-i18n="btn_save_card">Save Card</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 1: CREATE / MANAGE TAGS -->
-        <section id="view-create_tag" class="view-section hidden">
+        <!-- SECTION 2: TAGS -->
+        <section id="view-tags" class="view-section hidden">
             <div class="sticky-controls">
-                <div class="collapsible-card" id="manage-tag-accordion">
-                    <div class="collapsible-header">
-                        <div class="collapsible-title" onclick="toggleAccordion('manage-tag-accordion')">
-                            <span class="acc-icon">+</span>
-                            <span id="tag-form-title" data-i18n="title_create_tag">Define New Tag Key & Values</span>
-                        </div>
-                        <div class="collapsible-actions">
-                            <button class="icon-btn" onclick="resetTagForm()" title="Reset Form">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="collapsible-content">
-                        <div class="form-group">
-                            <label data-i18n="lbl_tag_key">Tag Key Name *</label>
-                            <input type="text" id="tag-key-input" placeholder="e.g. Priority" data-i18n-ph="ph_tag_key">
-                        </div>
-                        <div class="form-group">
-                            <label data-i18n="lbl_select_type">Selection Type</label>
-                            <div class="single-select-group" id="tag-type-select-group">
-                                <div class="single-select-option selected" data-value="single" onclick="setSelectionType('single')" data-i18n="opt_single">Single Select</div>
-                                <div class="single-select-option" data-value="multi" onclick="setSelectionType('multi')" data-i18n="opt_multi">Multi Select</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label data-i18n="lbl_tag_values">Add Values</label>
-                            <div class="form-row">
-                                <input type="text" id="tag-value-input" placeholder="e.g. High" data-i18n-ph="ph_tag_value">
-                                <button class="btn" id="tag-val-submit-btn" onclick="addValueToTagBuffer()" data-i18n="btn_add">Add</button>
-                            </div>
-                        </div>
-                        <div id="tag-values-buffer-cloud" class="tag-values-cloud" style="margin-bottom: 12px;"></div>
-                        <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="saveTagKey()" data-i18n="btn_save_tag">Save Tag Definition</button>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom:0;">
+                <div class="search-plus-bar">
                     <div class="input-clear-wrapper">
                         <input type="text" id="search-tag-text" placeholder="Search tags by key or value..." oninput="handleSearchTagInput()" data-i18n-ph="ph_search_tags">
                         <button class="clear-input-btn" id="search-tag-clear-btn" onclick="clearSearchTagInput()">&times;</button>
                     </div>
+                    <button class="btn btn-primary plus-btn" onclick="openCreateTagModal()" title="Create Tag">+</button>
                 </div>
             </div>
 
-            <!-- List of Defined Tags -->
             <div id="tags-list" class="cards-container"></div>
         </section>
     </main>
+
+    <!-- CREATE / EDIT TAG MODAL -->
+    <div id="tag-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tag-modal-heading" data-i18n="title_create_tag">Create Tag</h3>
+                <button class="icon-btn close-btn" onclick="closeModal('tag-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="lbl_tag_key">Tag Key Name *</label>
+                    <input type="text" id="tag-key-input" placeholder="e.g. Priority" data-i18n-ph="ph_tag_key">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lbl_tag_values">Add Tag Values</label>
+                    <div class="form-row">
+                        <input type="text" id="tag-value-input" placeholder="e.g. High" data-i18n-ph="ph_tag_value">
+                        <button class="btn btn-primary plus-btn" id="tag-val-submit-btn" onclick="addValueToTagBuffer()">+</button>
+                    </div>
+                </div>
+                <div id="tag-values-buffer-cloud" class="tag-values-cloud" style="margin-bottom: 12px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="resetTagForm()" data-i18n="btn_reset">Reset</button>
+                <button class="btn btn-primary" id="tag-save-btn" onclick="saveTagKey()" data-i18n="btn_save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE / EDIT CARD MODAL -->
+    <div id="card-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="card-modal-heading" data-i18n="title_create_card">Create Card</h3>
+                <button class="icon-btn close-btn" onclick="closeModal('card-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="lbl_card_name">Card Name *</label>
+                    <input type="text" id="card-name-input" placeholder="e.g. Dal Baati" data-i18n-ph="ph_card_name">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lbl_card_desc">Description (Optional)</label>
+                    <textarea id="card-desc-input" rows="3" placeholder="Enter description..." data-i18n-ph="ph_card_desc"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="lbl_add_tags">Add Tags</label>
+                    <select id="card-tag-key-select" onchange="onCardKeyChange()">
+                        <option value="" data-i18n="select_tag_key">-- Select Tag Key --</option>
+                    </select>
+                </div>
+
+                <div id="card-tag-values-box" class="tag-selector-box hidden">
+                    <div id="card-tag-values-cloud" class="tag-values-cloud"></div>
+                    <button class="btn btn-primary" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="addTagToCardBuffer()" data-i18n="btn_add_tag">Add Tag</button>
+                </div>
+
+                <div id="card-selected-tags-cloud" class="tag-values-cloud" style="margin-top: 10px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="resetCardForm()" data-i18n="btn_reset">Reset</button>
+                <button class="btn btn-primary" id="card-save-btn" onclick="saveCard()" data-i18n="btn_save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER CARDS MODAL -->
+    <div id="filter-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="filter_tags_title">Filter Cards</h3>
+                <button class="icon-btn close-btn" onclick="closeModal('filter-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="lbl_add_filter_tag">Add Tag Filter</label>
+                    <select id="filter-tag-key-select" onchange="onFilterKeyChange()">
+                        <option value="" data-i18n="select_tag_key">-- Select Tag Key --</option>
+                    </select>
+                </div>
+
+                <div id="filter-tag-values-box" class="tag-selector-box hidden">
+                    <div id="filter-tag-values-cloud" class="tag-values-cloud"></div>
+                    <button class="btn btn-primary" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="addFilterToBuffer()" data-i18n="btn_add_filter">Add Tag Filter</button>
+                </div>
+
+                <div id="active-filters-cloud" class="tag-values-cloud" style="margin-top: 12px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="clearAllFilters()" data-i18n="btn_clear">Clear</button>
+                <button class="btn btn-primary" onclick="applyFilters()" data-i18n="btn_apply">Apply</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Side Settings Drawer -->
     <div id="settings-drawer" class="drawer drawer-right">
@@ -791,17 +802,17 @@
             <div class="import-export-row">
                 <button class="btn" onclick="openUploadModal()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    <span data-i18n="btn_upload_state">Import State (JSON)</span>
+                    <span data-i18n="btn_upload_state">Import State</span>
                 </button>
                 <button class="btn" onclick="openDownloadModal()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    <span data-i18n="btn_download_state">Export State (JSON)</span>
+                    <span data-i18n="btn_download_state">Export State</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Export / Download Modal -->
+    <!-- Export Modal -->
     <div id="download-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -818,7 +829,7 @@
         </div>
     </div>
 
-    <!-- Import / Upload Modal -->
+    <!-- Import Modal -->
     <div id="upload-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -841,36 +852,34 @@
         const i18nData = {
             english: {
                 title_menu: "Menu",
-                nav_search: "Search Cards",
-                nav_create_card: "Create Cards",
-                nav_create_tag: "Manage Tags",
-                filter_tags_title: "Filter by Tags",
+                nav_cards: "Cards",
+                nav_tags: "Tags",
+                filter_tags_title: "Filter Cards",
                 select_tag_key: "-- Select Tag Key --",
-                ph_search_val: "Search values...",
-                btn_add_filter: "Add Filter",
+                btn_add_filter: "Add Tag Filter",
                 btn_surprise_me: "Surprise Me",
+                btn_filter: "Filter",
                 ph_search_cards: "Search cards by name...",
-                title_create_card: "Create New Card",
+                title_create_card: "Create Card",
                 title_edit_card: "Edit Card",
                 lbl_card_name: "Card Name *",
                 ph_card_name: "e.g. Dal Baati",
                 lbl_card_desc: "Description (Optional)",
                 ph_card_desc: "Enter description...",
                 lbl_add_tags: "Add Tags",
-                btn_add_tag: "Add Tag to Card",
-                btn_save_card: "Save Card",
-                title_create_tag: "Define New Tag Key & Values",
-                title_edit_tag: "Edit Tag Key & Values",
+                lbl_add_filter_tag: "Add Tag Filter",
+                btn_add_tag: "Add Tag",
+                btn_save: "Save",
+                btn_update: "Update",
+                btn_reset: "Reset",
+                btn_clear: "Clear",
+                title_create_tag: "Create Tag",
+                title_edit_tag: "Edit Tag",
                 lbl_tag_key: "Tag Key Name *",
                 ph_tag_key: "e.g. Priority",
-                lbl_select_type: "Selection Type",
-                opt_single: "Single Select",
-                opt_multi: "Multi Select",
-                lbl_tag_values: "Add Values",
+                lbl_tag_values: "Add Tag Values",
                 ph_tag_value: "e.g. High",
-                btn_add: "Add",
-                btn_update: "Update",
-                btn_save_tag: "Save Tag Definition",
+                btn_add: "+",
                 ph_search_tags: "Search tags by key or value...",
                 title_settings: "Settings",
                 lbl_language: "Language",
@@ -888,7 +897,7 @@
                 modal_import_title: "Import Application State",
                 ph_paste_json: "Paste JSON here or upload a file below...",
                 btn_choose_file: "Upload File",
-                btn_apply: "Apply State",
+                btn_apply: "Apply",
                 msg_copied: "Copied to clipboard!",
                 msg_invalid_json: "Invalid JSON provided!",
                 msg_empty_name: "Please enter a card name.",
@@ -896,36 +905,34 @@
             },
             hindi: {
                 title_menu: "मेन्यू",
-                nav_search: "कार्ड खोजें",
-                nav_create_card: "कार्ड बनाएं",
-                nav_create_tag: "टैग प्रबंधित करें",
-                filter_tags_title: "टैग द्वारा फ़िल्टर करें",
+                nav_cards: "कार्ड्स",
+                nav_tags: "टैग्स",
+                filter_tags_title: "फ़िल्टर कार्ड्स",
                 select_tag_key: "-- टैग कुंजी चुनें --",
-                ph_search_val: "मान खोजें...",
-                btn_add_filter: "फ़िल्टर जोड़ें",
+                btn_add_filter: "टैग फ़िल्टर जोड़ें",
                 btn_surprise_me: "सरप्राइज मी",
+                btn_filter: "फ़िल्टर",
                 ph_search_cards: "नाम से कार्ड खोजें...",
-                title_create_card: "नया कार्ड बनाएं",
+                title_create_card: "कार्ड बनाएं",
                 title_edit_card: "कार्ड संपादित करें",
                 lbl_card_name: "कार्ड का नाम *",
                 ph_card_name: "उदा. दाल बाटी",
                 lbl_card_desc: "विवरण (वैकल्पिक)",
                 ph_card_desc: "विवरण दर्ज करें...",
                 lbl_add_tags: "टैग जोड़ें",
-                btn_add_tag: "कार्ड में टैग जोड़ें",
-                btn_save_card: "कार्ड सहेजें",
-                title_create_tag: "नया टैग कुंजी और मान परिभाषित करें",
-                title_edit_tag: "टैग कुंजी और मान संपादित करें",
+                lbl_add_filter_tag: "टैग फ़िल्टर जोड़ें",
+                btn_add_tag: "टैग जोड़ें",
+                btn_save: "सहेजें",
+                btn_update: "अद्यतन",
+                btn_reset: "रीसेट",
+                btn_clear: "साफ़ करें",
+                title_create_tag: "टैग बनाएं",
+                title_edit_tag: "टैग संपादित करें",
                 lbl_tag_key: "टैग कुंजी नाम *",
                 ph_tag_key: "उदा. प्राथमिकता",
-                lbl_select_type: "चयन प्रकार",
-                opt_single: "एकल चयन",
-                opt_multi: "बहु चयन",
-                lbl_tag_values: "मान जोड़ें",
+                lbl_tag_values: "टैग मान जोड़ें",
                 ph_tag_value: "उदा. उच्च",
-                btn_add: "जोड़ें",
-                btn_update: "अद्यतन",
-                btn_save_tag: "टैग परिभाषा सहेजें",
+                btn_add: "+",
                 ph_search_tags: "कुंजी या मान द्वारा टैग खोजें...",
                 title_settings: "सेटिंग्स",
                 lbl_language: "भाषा",
@@ -943,7 +950,7 @@
                 modal_import_title: "आवेदन स्थिति आयात करें",
                 ph_paste_json: "यहाँ JSON पेस्ट करें या नीचे फ़ाइल अपलोड करें...",
                 btn_choose_file: "फ़ाइल अपलोड करें",
-                btn_apply: "स्थिति लागू करें",
+                btn_apply: "लागू करें",
                 msg_copied: "क्लिपबोर्ड पर कॉपी हो गया!",
                 msg_invalid_json: "अमान्य JSON प्रदान किया गया!",
                 msg_empty_name: "कृपया कार्ड का नाम दर्ज करें।",
@@ -955,40 +962,39 @@
         let appState = {
             defaults: {
                 language: "english",
-                currentView: "search"
+                currentView: "cards"
             },
             tags: {},
             cards: []
         };
 
         let currentThemeMode = localStorage.getItem('app_theme_mode') || 'system';
-        let currentTagType = 'single';
 
-        // Temporary Component Buffer States
+        // Buffer States
         let tagBufferValues = [];
         let editingTagKey = null;
-        let editingValueIndex = null; // Track index of tag value being rewritten/edited
+        let editingValueIndex = null;
 
+        let initialCardState = null;
         let cardBufferTags = {}; // { Key: [values] }
-        let currentSelectingCardKey = null; // Track key being configured in UI
-        let currentSelectingCardValues = []; // Values selected but not explicitly added via Add Tag
+        let currentSelectingCardKey = null;
+        let currentSelectingCardValues = [];
         let editingCardId = null;
 
-        let activeFilters = {}; // { Key: [values] }
+        let appliedFilters = {};
+        let filterBufferTags = {};
         let currentSelectingFilterKey = null;
-        let selectedFilterValues = [];
+        let currentSelectingFilterValues = [];
 
-        // System Preference Listener
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
             if (currentThemeMode === 'system') applyTheme();
         });
 
-        // --- Core Lifecycle & LocalStorage Persistence ---
         window.addEventListener('DOMContentLoaded', () => {
             loadStateFromStorage();
             applyLanguage();
             applyTheme();
-            switchView(appState.defaults.currentView || "search");
+            switchView(appState.defaults.currentView || "cards");
         });
 
         function saveStateToStorage() {
@@ -1000,21 +1006,23 @@
             if (saved) {
                 try {
                     appState = JSON.parse(saved);
-                    if (!appState.defaults) appState.defaults = { language: "english", currentView: "search" };
-                    if (appState.defaults.theme) delete appState.defaults.theme;
+                    if (!appState.defaults) appState.defaults = { language: "english", currentView: "cards" };
                     if (!appState.tags) appState.tags = {};
                     if (!appState.cards) appState.cards = [];
+                    // Ensure all tags are multi-select
+                    Object.keys(appState.tags).forEach(k => {
+                        appState.tags[k].type = 'multi';
+                    });
                 } catch(e) {
                     console.error("Failed to load state", e);
                 }
             }
         }
 
-        // --- Text Input Clear Cross Controls ---
+        // --- Controls ---
         function handleSearchCardInput() {
             const val = document.getElementById('search-card-text').value;
-            const clearBtn = document.getElementById('search-card-clear-btn');
-            clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+            document.getElementById('search-card-clear-btn').style.display = val.length > 0 ? 'block' : 'none';
             renderCards();
         }
 
@@ -1026,8 +1034,8 @@
 
         function handleSearchTagInput() {
             const val = document.getElementById('search-tag-text').value;
-            const clearBtn = document.getElementById('search-tag-clear-btn');
-            clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+            document.getElementById('search-tag-clear-btn').style.display = 'none';
+            if (val.length > 0) document.getElementById('search-tag-clear-btn').style.display = 'block';
             renderTagsList();
         }
 
@@ -1051,9 +1059,8 @@
 
             updateHeaderTitle();
 
-            if (viewName === 'search') renderCards();
-            if (viewName === 'create_tag') renderTagsList();
-            if (viewName === 'create_card') populateCardTagDropdown();
+            if (viewName === 'cards') renderCards();
+            if (viewName === 'tags') renderTagsList();
 
             saveStateToStorage();
         }
@@ -1062,9 +1069,8 @@
             const viewName = appState.defaults.currentView;
             const dict = i18nData[appState.defaults.language] || i18nData.english;
             const titleMap = {
-                search: dict.nav_search,
-                create_card: dict.nav_create_card,
-                create_tag: dict.nav_create_tag
+                cards: dict.nav_cards,
+                tags: dict.nav_tags
             };
             document.getElementById('active-section-name').textContent = titleMap[viewName] || '';
         }
@@ -1106,11 +1112,12 @@
             document.getElementById('drawer-overlay').classList.remove('active');
         }
 
-        function toggleAccordion(id) {
-            const acc = document.getElementById(id);
-            acc.classList.toggle('open');
-            const icon = acc.querySelector('.acc-icon');
-            if (icon) icon.textContent = acc.classList.contains('open') ? '–' : '+';
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
         }
 
         // --- Language & Theme Handlers ---
@@ -1124,6 +1131,7 @@
             applyLanguage();
             updateHeaderTitle();
             saveStateToStorage();
+            updateFilterButtonUI();
         }
 
         function applyLanguage() {
@@ -1172,26 +1180,45 @@
             document.documentElement.setAttribute('data-theme', targetTheme);
         }
 
-        // --- TAG MANAGEMENT (Tab 1) ---
-        function setSelectionType(type) {
-            currentTagType = type;
-            document.querySelectorAll('#tag-type-select-group .single-select-option').forEach(el => {
-                el.classList.toggle('selected', el.getAttribute('data-value') === type);
-            });
+        // --- TAG MANAGEMENT (SECTION 2) ---
+        function openCreateTagModal() {
+            editingTagKey = null;
+            editingValueIndex = null;
+            const searchVal = document.getElementById('search-tag-text').value.trim();
+            document.getElementById('tag-key-input').value = searchVal;
+            document.getElementById('tag-value-input').value = '';
+            tagBufferValues = [];
+
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            document.getElementById('tag-modal-heading').textContent = dict.title_create_tag;
+            document.getElementById('tag-save-btn').textContent = dict.btn_save;
+
+            updateTagValSubmitBtnLabel();
+            renderTagBufferCloud();
+            openModal('tag-modal');
+        }
+
+        function editTag(key) {
+            editingTagKey = key;
+            editingValueIndex = null;
+            const tag = appState.tags[key];
+            document.getElementById('tag-key-input').value = key;
+            document.getElementById('tag-value-input').value = '';
+            tagBufferValues = [...tag.values];
+
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            document.getElementById('tag-modal-heading').textContent = dict.title_edit_tag;
+            document.getElementById('tag-save-btn').textContent = dict.btn_update;
+
+            updateTagValSubmitBtnLabel();
+            renderTagBufferCloud();
+            openModal('tag-modal');
         }
 
         function updateTagValSubmitBtnLabel() {
             const btn = document.getElementById('tag-val-submit-btn');
             if (!btn) return;
-
-            const dict = i18nData[appState.defaults.language] || i18nData.english;
-            if (editingValueIndex !== null) {
-                btn.setAttribute('data-i18n', 'btn_update');
-                btn.textContent = dict.btn_update;
-            } else {
-                btn.setAttribute('data-i18n', 'btn_add');
-                btn.textContent = dict.btn_add;
-            }
+            btn.textContent = "+";
         }
 
         function selectValueForEdit(index) {
@@ -1210,11 +1237,9 @@
             if (!val) return;
 
             if (editingValueIndex !== null && editingValueIndex >= 0 && editingValueIndex < tagBufferValues.length) {
-                // Rewrite selected tag value at its index
                 tagBufferValues[editingValueIndex] = val;
                 editingValueIndex = null;
             } else if (!tagBufferValues.includes(val)) {
-                // Add new tag value
                 tagBufferValues.push(val);
             }
             updateTagValSubmitBtnLabel();
@@ -1250,9 +1275,7 @@
         function saveTagKey() {
             const keyInput = document.getElementById('tag-key-input');
             const key = keyInput.value.trim();
-            const type = currentTagType;
 
-            // Prompt check when Tag Key Name is empty
             if (!key) {
                 alert((i18nData[appState.defaults.language]||i18nData.english).msg_empty_tag_key);
                 return;
@@ -1271,11 +1294,10 @@
             }
 
             appState.tags[key] = {
-                type: type,
+                type: 'multi',
                 values: [...tagBufferValues]
             };
 
-            // Map renamed tag values appropriately on existing cards
             const valueMap = {};
             if (editingTagKey && oldValues.length > 0) {
                 oldValues.forEach((oldVal, idx) => {
@@ -1287,39 +1309,16 @@
 
             appState.cards.forEach(card => {
                 if (card.tags[key]) {
-                    // Update rewritten tag values first
                     card.tags[key] = card.tags[key].map(v => valueMap[v] || v);
-                    // Filter out removed tag values
                     card.tags[key] = card.tags[key].filter(v => tagBufferValues.includes(v));
-                    // Remove duplicate values if any created by mapping
                     card.tags[key] = [...new Set(card.tags[key])];
-                    if (type === 'single' && card.tags[key].length > 1) {
-                        card.tags[key] = [card.tags[key][0]];
-                    }
                     if (card.tags[key].length === 0) delete card.tags[key];
                 }
             });
 
-            resetTagForm();
+            closeModal('tag-modal');
             renderTagsList();
             saveStateToStorage();
-        }
-
-        function editTag(key) {
-            editingTagKey = key;
-            editingValueIndex = null;
-            const tag = appState.tags[key];
-            document.getElementById('tag-key-input').value = key;
-            setSelectionType(tag.type);
-            tagBufferValues = [...tag.values];
-            updateTagValSubmitBtnLabel();
-            renderTagBufferCloud();
-
-            const dict = i18nData[appState.defaults.language] || i18nData.english;
-            document.getElementById('tag-form-title').textContent = dict.title_edit_tag;
-
-            const acc = document.getElementById('manage-tag-accordion');
-            if (!acc.classList.contains('open')) toggleAccordion('manage-tag-accordion');
         }
 
         function deleteTag(key) {
@@ -1327,23 +1326,23 @@
             appState.cards.forEach(card => {
                 delete card.tags[key];
             });
-            delete activeFilters[key];
+            delete appliedFilters[key];
             renderTagsList();
             saveStateToStorage();
         }
 
         function resetTagForm() {
-            editingTagKey = null;
+            if (editingTagKey && appState.tags[editingTagKey]) {
+                document.getElementById('tag-key-input').value = editingTagKey;
+                tagBufferValues = [...appState.tags[editingTagKey].values];
+            } else {
+                document.getElementById('tag-key-input').value = '';
+                tagBufferValues = [];
+            }
             editingValueIndex = null;
-            document.getElementById('tag-key-input').value = '';
             document.getElementById('tag-value-input').value = '';
-            setSelectionType('single');
-            tagBufferValues = [];
             updateTagValSubmitBtnLabel();
             renderTagBufferCloud();
-
-            const dict = i18nData[appState.defaults.language] || i18nData.english;
-            document.getElementById('tag-form-title').textContent = dict.title_create_tag;
         }
 
         function renderTagsList() {
@@ -1365,7 +1364,7 @@
 
                     card.innerHTML = `
                         <div class="item-card-header">
-                            <span class="item-card-title">${key} <small style="font-weight:normal; color:var(--text-muted)">(${tag.type})</small></span>
+                            <span class="item-card-title">${key}</span>
                             <button class="icon-btn remove-btn" onclick="deleteTag('${key}')">&times;</button>
                         </div>
                         <div class="item-card-tags">
@@ -1377,7 +1376,7 @@
             });
         }
 
-        // --- CREATE CARDS (Tab 2) ---
+        // --- CARDS MANAGEMENT (SECTION 1) ---
         function populateCardTagDropdown() {
             const select = document.getElementById('card-tag-key-select');
             select.innerHTML = `<option value="">${(i18nData[appState.defaults.language]||i18nData.english).select_tag_key}</option>`;
@@ -1388,6 +1387,45 @@
             currentSelectingCardKey = null;
             currentSelectingCardValues = [];
             renderCardBufferTagsCloud();
+        }
+
+        function openCreateCardModal() {
+            editingCardId = null;
+            initialCardState = {
+                name: document.getElementById('search-card-text').value.trim(),
+                desc: '',
+                tags: {}
+            };
+
+            document.getElementById('card-name-input').value = initialCardState.name;
+            document.getElementById('card-desc-input').value = '';
+            cardBufferTags = {};
+
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            document.getElementById('card-modal-heading').textContent = dict.title_create_card;
+            document.getElementById('card-save-btn').textContent = dict.btn_save;
+
+            populateCardTagDropdown();
+            openModal('card-modal');
+        }
+
+        function editCard(cardId) {
+            const card = appState.cards.find(c => c.id === cardId);
+            if (!card) return;
+
+            editingCardId = card.id;
+            initialCardState = JSON.parse(JSON.stringify(card));
+
+            document.getElementById('card-name-input').value = card.name;
+            document.getElementById('card-desc-input').value = card.desc || '';
+            cardBufferTags = JSON.parse(JSON.stringify(card.tags || {}));
+
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            document.getElementById('card-modal-heading').textContent = dict.title_edit_card;
+            document.getElementById('card-save-btn').textContent = dict.btn_update;
+
+            populateCardTagDropdown();
+            openModal('card-modal');
         }
 
         function onCardKeyChange() {
@@ -1408,21 +1446,14 @@
             renderCardBufferTagsCloud();
         }
 
-        function filterTagValuesDisplay(prefix) {
-            if (prefix === 'card') renderCardTagValuesDisplay();
-            if (prefix === 'search') renderFilterTagValuesDisplay();
-        }
-
         function renderCardTagValuesDisplay() {
             const key = currentSelectingCardKey;
             if (!key || !appState.tags[key]) return;
 
-            const filterText = document.getElementById('card-val-search').value.toLowerCase();
             const tagDef = appState.tags[key];
             const cloud = document.getElementById('card-tag-values-cloud');
 
             cloud.innerHTML = tagDef.values
-                .filter(v => v.toLowerCase().includes(filterText))
                 .map(v => {
                     const isSelected = currentSelectingCardValues.includes(v);
                     return `<span class="chip chip-selectable ${isSelected ? 'selected' : ''}" onclick="toggleCardTagValueSelection('${v}')">${v}</span>`;
@@ -1430,18 +1461,10 @@
         }
 
         function toggleCardTagValueSelection(val) {
-            const key = currentSelectingCardKey;
-            if (!key || !appState.tags[key]) return;
-            const tagDef = appState.tags[key];
-
-            if (tagDef.type === 'single') {
-                currentSelectingCardValues = [val];
+            if (currentSelectingCardValues.includes(val)) {
+                currentSelectingCardValues = currentSelectingCardValues.filter(v => v !== val);
             } else {
-                if (currentSelectingCardValues.includes(val)) {
-                    currentSelectingCardValues = currentSelectingCardValues.filter(v => v !== val);
-                } else {
-                    currentSelectingCardValues.push(val);
-                }
+                currentSelectingCardValues.push(val);
             }
             renderCardTagValuesDisplay();
         }
@@ -1502,7 +1525,6 @@
                 return;
             }
 
-            // Fixed Behavior: Unadded selected dropdown values are ignored on save. Only explicitly added tags (in cardBufferTags) are saved.
             const cleanTags = {};
             Object.keys(cardBufferTags).forEach(k => {
                 if (cardBufferTags[k] && cardBufferTags[k].length > 0) {
@@ -1525,25 +1547,9 @@
                 appState.cards.push(newCard);
             }
 
-            resetCardForm();
+            closeModal('card-modal');
             saveStateToStorage();
-            switchView('search');
-        }
-
-        function editCard(cardId) {
-            const card = appState.cards.find(c => c.id === cardId);
-            if (!card) return;
-
-            editingCardId = card.id;
-            document.getElementById('card-name-input').value = card.name;
-            document.getElementById('card-desc-input').value = card.desc || '';
-            cardBufferTags = JSON.parse(JSON.stringify(card.tags || {}));
-
-            const dict = i18nData[appState.defaults.language] || i18nData.english;
-            document.getElementById('card-form-title').textContent = dict.title_edit_card;
-
-            renderCardBufferTagsCloud();
-            switchView('create_card');
+            renderCards();
         }
 
         function deleteCard(cardId) {
@@ -1553,139 +1559,167 @@
         }
 
         function resetCardForm() {
-            editingCardId = null;
-            document.getElementById('card-name-input').value = '';
-            document.getElementById('card-desc-input').value = '';
+            if (initialCardState) {
+                document.getElementById('card-name-input').value = initialCardState.name || '';
+                document.getElementById('card-desc-input').value = initialCardState.desc || '';
+                cardBufferTags = JSON.parse(JSON.stringify(initialCardState.tags || {}));
+            } else {
+                document.getElementById('card-name-input').value = '';
+                document.getElementById('card-desc-input').value = '';
+                cardBufferTags = {};
+            }
             document.getElementById('card-tag-key-select').value = '';
             document.getElementById('card-tag-values-box').classList.add('hidden');
-            cardBufferTags = {};
             currentSelectingCardKey = null;
             currentSelectingCardValues = [];
             renderCardBufferTagsCloud();
-
-            const dict = i18nData[appState.defaults.language] || i18nData.english;
-            document.getElementById('card-form-title').textContent = dict.title_create_card;
         }
 
-        // --- SEARCH CARDS (Tab 3) ---
+        // --- FILTER MODAL ---
+        function openFilterModal() {
+            filterBufferTags = JSON.parse(JSON.stringify(appliedFilters));
+            populateFilterKeyDropdown();
+            renderFilterBufferTagsCloud();
+            openModal('filter-modal');
+        }
+
         function populateFilterKeyDropdown() {
-            const select = document.getElementById('search-tag-key-select');
+            const select = document.getElementById('filter-tag-key-select');
             select.innerHTML = `<option value="">${(i18nData[appState.defaults.language]||i18nData.english).select_tag_key}</option>`;
             Object.keys(appState.tags).forEach(key => {
                 select.innerHTML += `<option value="${key}">${key}</option>`;
             });
-            document.getElementById('search-tag-values-box').classList.add('hidden');
+            document.getElementById('filter-tag-values-box').classList.add('hidden');
+            currentSelectingFilterKey = null;
+            currentSelectingFilterValues = [];
         }
 
         function onFilterKeyChange() {
-            const key = document.getElementById('search-tag-key-select').value;
-            const box = document.getElementById('search-tag-values-box');
+            const key = document.getElementById('filter-tag-key-select').value;
+            const box = document.getElementById('filter-tag-values-box');
             if (!key) { 
                 box.classList.add('hidden'); 
                 currentSelectingFilterKey = null;
-                selectedFilterValues = [];
-                renderActiveFiltersCloud();
+                currentSelectingFilterValues = [];
+                renderFilterBufferTagsCloud();
                 return; 
             }
 
             currentSelectingFilterKey = key;
-            selectedFilterValues = activeFilters[key] ? [...activeFilters[key]] : [];
+            currentSelectingFilterValues = filterBufferTags[key] ? [...filterBufferTags[key]] : [];
             box.classList.remove('hidden');
             renderFilterTagValuesDisplay();
-            renderActiveFiltersCloud();
-        }
-
-        function editAppliedFilter(key) {
-            const acc = document.getElementById('search-filter-accordion');
-            if (!acc.classList.contains('open')) toggleAccordion('search-filter-accordion');
-
-            document.getElementById('search-tag-key-select').value = key;
-            onFilterKeyChange();
+            renderFilterBufferTagsCloud();
         }
 
         function renderFilterTagValuesDisplay() {
             const key = currentSelectingFilterKey;
             if (!key || !appState.tags[key]) return;
 
-            const filterText = document.getElementById('search-val-search').value.toLowerCase();
             const tagDef = appState.tags[key];
-            const cloud = document.getElementById('search-tag-values-cloud');
+            const cloud = document.getElementById('filter-tag-values-cloud');
 
             cloud.innerHTML = tagDef.values
-                .filter(v => v.toLowerCase().includes(filterText))
                 .map(v => {
-                    const isSelected = selectedFilterValues.includes(v);
+                    const isSelected = currentSelectingFilterValues.includes(v);
                     return `<span class="chip chip-selectable ${isSelected ? 'selected' : ''}" onclick="toggleFilterValueSelection('${v}')">${v}</span>`;
                 }).join('');
         }
 
         function toggleFilterValueSelection(val) {
-            if (selectedFilterValues.includes(val)) {
-                selectedFilterValues = selectedFilterValues.filter(v => v !== val);
+            if (currentSelectingFilterValues.includes(val)) {
+                currentSelectingFilterValues = currentSelectingFilterValues.filter(v => v !== val);
             } else {
-                selectedFilterValues.push(val);
+                currentSelectingFilterValues.push(val);
             }
             renderFilterTagValuesDisplay();
         }
 
-        function addFilter() {
-            const key = currentSelectingFilterKey;
-            if (key && selectedFilterValues.length > 0) {
-                activeFilters[key] = [...selectedFilterValues];
-            } else if (key) {
-                delete activeFilters[key];
+        function addFilterToBuffer() {
+            if (currentSelectingFilterKey) {
+                if (currentSelectingFilterValues.length > 0) {
+                    filterBufferTags[currentSelectingFilterKey] = [...currentSelectingFilterValues];
+                } else {
+                    delete filterBufferTags[currentSelectingFilterKey];
+                }
             }
+
             currentSelectingFilterKey = null;
-            selectedFilterValues = [];
-            document.getElementById('search-tag-key-select').value = '';
-            document.getElementById('search-tag-values-box').classList.add('hidden');
-            renderActiveFiltersCloud();
-            renderCards();
+            currentSelectingFilterValues = [];
+            document.getElementById('filter-tag-key-select').value = '';
+            document.getElementById('filter-tag-values-box').classList.add('hidden');
+            renderFilterBufferTagsCloud();
         }
 
-        function removeFilterKey(key) {
-            delete activeFilters[key];
+        function removeFilterKeyFromBuffer(key) {
+            delete filterBufferTags[key];
             if (currentSelectingFilterKey === key) {
                 currentSelectingFilterKey = null;
-                selectedFilterValues = [];
-                document.getElementById('search-tag-key-select').value = '';
-                document.getElementById('search-tag-values-box').classList.add('hidden');
+                currentSelectingFilterValues = [];
+                document.getElementById('filter-tag-key-select').value = '';
+                document.getElementById('filter-tag-values-box').classList.add('hidden');
             }
-            renderActiveFiltersCloud();
-            renderCards();
+            renderFilterBufferTagsCloud();
         }
 
-        function resetFilters() {
-            activeFilters = {};
-            currentSelectingFilterKey = null;
-            selectedFilterValues = [];
-            document.getElementById('search-tag-key-select').value = '';
-            document.getElementById('search-tag-values-box').classList.add('hidden');
-            document.getElementById('search-card-text').value = '';
-            document.getElementById('search-card-clear-btn').style.display = 'none';
-            renderActiveFiltersCloud();
-            renderCards();
+        function editFilterTagKey(key) {
+            document.getElementById('filter-tag-key-select').value = key;
+            onFilterKeyChange();
         }
 
-        function renderActiveFiltersCloud() {
+        function renderFilterBufferTagsCloud() {
             const container = document.getElementById('active-filters-cloud');
-            const dot = document.getElementById('filter-active-dot');
-            
-            const hasFilters = Object.keys(activeFilters).length > 0;
-            if (hasFilters) dot.classList.remove('hidden');
-            else dot.classList.add('hidden');
-
-            container.innerHTML = Object.keys(activeFilters).map(key => {
+            container.innerHTML = Object.keys(filterBufferTags).map(key => {
+                if (!filterBufferTags[key] || filterBufferTags[key].length === 0) return '';
                 const isCurrentlySelected = (key === currentSelectingFilterKey);
                 return `
-                    <span class="chip ${isCurrentlySelected ? 'active-editing' : ''}" onclick="editAppliedFilter('${key}')" style="cursor:pointer;">
-                        <strong>${key}:</strong> ${activeFilters[key].join(', ')}
-                        <span class="remove-btn" onclick="event.stopPropagation(); removeFilterKey('${key}')">&times;</span>
+                    <span class="chip ${isCurrentlySelected ? 'active-editing' : ''}" onclick="editFilterTagKey('${key}')" style="cursor:pointer;">
+                        <strong>${key}:</strong> ${filterBufferTags[key].join(', ')}
+                        <span class="remove-btn" onclick="event.stopPropagation(); removeFilterKeyFromBuffer('${key}')">&times;</span>
                     </span>
                 `;
             }).join('');
         }
 
+        function clearAllFilters() {
+            filterBufferTags = {};
+            currentSelectingFilterKey = null;
+            currentSelectingFilterValues = [];
+            document.getElementById('filter-tag-key-select').value = '';
+            document.getElementById('filter-tag-values-box').classList.add('hidden');
+            renderFilterBufferTagsCloud();
+        }
+
+        function applyFilters() {
+            appliedFilters = JSON.parse(JSON.stringify(filterBufferTags));
+            closeModal('filter-modal');
+            renderCards();
+        }
+
+        function resetFiltersDirectly() {
+            appliedFilters = {};
+            filterBufferTags = {};
+            renderCards();
+        }
+
+        function updateFilterButtonUI() {
+            const baseText = (i18nData[appState.defaults.language] || i18nData.english).btn_filter;
+            const filterKeys = Object.keys(appliedFilters).filter(k => appliedFilters[k] && appliedFilters[k].length > 0);
+            
+            const btnTextEl = document.getElementById('filter-btn-text');
+            const resetIconEl = document.getElementById('filter-reset-icon');
+
+            if (filterKeys.length > 0) {
+                const count = getFilteredCards().length;
+                btnTextEl.textContent = `${baseText} (${count})`;
+                resetIconEl.classList.remove('hidden');
+            } else {
+                btnTextEl.textContent = baseText;
+                resetIconEl.classList.add('hidden');
+            }
+        }
+
+        // --- RENDER & SEARCH CARDS ---
         function getFilteredCards() {
             const textQuery = document.getElementById('search-card-text').value.toLowerCase();
             
@@ -1693,9 +1727,9 @@
                 const matchesText = card.name.toLowerCase().includes(textQuery);
                 if (!matchesText) return false;
 
-                const filterKeys = Object.keys(activeFilters);
+                const filterKeys = Object.keys(appliedFilters);
                 for (let key of filterKeys) {
-                    const allowedVals = activeFilters[key];
+                    const allowedVals = appliedFilters[key];
                     if (!allowedVals || allowedVals.length === 0) continue;
 
                     const cardVals = card.tags ? (card.tags[key] || []) : [];
@@ -1708,7 +1742,7 @@
         }
 
         function renderCards() {
-            populateFilterKeyDropdown();
+            updateFilterButtonUI();
             const container = document.getElementById('cards-list');
             const filtered = getFilteredCards();
             container.innerHTML = '';
@@ -1752,30 +1786,21 @@
             }
         }
 
-        // --- IMPORT / EXPORT (SETTINGS DRAWER) ---
+        // --- IMPORT / EXPORT ---
         function openDownloadModal() {
             closeAllDrawers();
             const modal = document.getElementById('download-modal');
             const area = document.getElementById('download-json-area');
 
             const exportState = JSON.parse(JSON.stringify(appState));
-            if (exportState.defaults && exportState.defaults.theme) {
-                delete exportState.defaults.theme;
-            }
-
             area.value = JSON.stringify(exportState, null, 2);
-            modal.classList.add('active');
+            openModal('download-modal');
         }
 
         function openUploadModal() {
             closeAllDrawers();
-            const modal = document.getElementById('upload-modal');
             document.getElementById('upload-json-area').value = '';
-            modal.classList.add('active');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
+            openModal('upload-modal');
         }
 
         function copyToClipboard() {
@@ -1786,9 +1811,6 @@
             try {
                 if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(area.value).then(() => {
-                        alert((i18nData[appState.defaults.language]||i18nData.english).msg_copied);
-                    }).catch(() => {
-                        document.execCommand('copy');
                         alert((i18nData[appState.defaults.language]||i18nData.english).msg_copied);
                     });
                 } else {
@@ -1802,10 +1824,6 @@
 
         function downloadStateFile() {
             const exportState = JSON.parse(JSON.stringify(appState));
-            if (exportState.defaults && exportState.defaults.theme) {
-                delete exportState.defaults.theme;
-            }
-
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportState, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
@@ -1832,16 +1850,18 @@
                 const parsed = JSON.parse(jsonText);
                 if (typeof parsed === 'object' && parsed !== null) {
                     appState = parsed;
-                    if (!appState.defaults) appState.defaults = { language: "english", currentView: "search" };
-                    if (appState.defaults.theme) delete appState.defaults.theme;
+                    if (!appState.defaults) appState.defaults = { language: "english", currentView: "cards" };
                     if (!appState.tags) appState.tags = {};
                     if (!appState.cards) appState.cards = [];
+                    Object.keys(appState.tags).forEach(k => {
+                        appState.tags[k].type = 'multi';
+                    });
 
                     saveStateToStorage();
                     applyLanguage();
                     applyTheme();
                     closeModal('upload-modal');
-                    switchView(appState.defaults.currentView || "search");
+                    switchView(appState.defaults.currentView || "cards");
                 } else {
                     throw new Error();
                 }
