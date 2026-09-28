@@ -1322,6 +1322,9 @@
         }
 
         function deleteTag(key) {
+            if (!confirm(`Are you sure you want to delete the tag "${key}"?`)) {
+                return;
+            }
             delete appState.tags[key];
             appState.cards.forEach(card => {
                 delete card.tags[key];
@@ -1553,6 +1556,11 @@
         }
 
         function deleteCard(cardId) {
+            const card = appState.cards.find(c => c.id === cardId);
+            const cardName = card ? card.name : 'this card';
+            if (!confirm(`Are you sure you want to delete the card "${cardName}"?`)) {
+                return;
+            }
             appState.cards = appState.cards.filter(c => c.id !== cardId);
             renderCards();
             saveStateToStorage();
