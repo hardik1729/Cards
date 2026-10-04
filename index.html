@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Card & Tag Manager</title>
+    <title>Card, Tag & Schedule Manager</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -54,7 +54,6 @@
             flex-direction: column;
         }
 
-        /* Top Navigation Header */
         header {
             background-color: var(--surface-color);
             border-bottom: 1px solid var(--border-color);
@@ -79,22 +78,22 @@
             font-size: 16px;
         }
 
-        select, input[type="text"], textarea {
+        select, input[type="text"], input[type="date"], textarea {
             background-color: var(--bg-color);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            padding: 8px 12px;
+            padding: 0px 12px;
             border-radius: 6px;
             outline: none;
             font-size: 14px;
             transition: var(--transition);
+			height: 38px;
         }
 
-        select:focus, input[type="text"]:focus, textarea:focus {
+        select:focus, input[type="text"]:focus, input[type="date"]:focus, textarea:focus {
             border-color: var(--primary-color);
         }
 
-        /* Search + Action Bar Layout */
         .search-plus-bar {
             display: flex;
             gap: 8px;
@@ -107,6 +106,7 @@
             display: flex;
             align-items: center;
             flex: 1;
+            width: 100%;
         }
 
         .input-clear-wrapper input {
@@ -132,13 +132,11 @@
             color: var(--error-color);
         }
 
-        /* Square Plus Buttons matching adjacent input heights */
         .plus-btn {
             font-size: 22px;
             font-weight: bold;
-            aspect-ratio: 1 / 1;
-            height: 35px;
-            width: 35px;
+            height: 38px;
+            width: 38px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -204,7 +202,6 @@
             background-color: var(--primary-color);
         }
 
-        /* Filter & Action Bar Enhancements */
         .controls-row {
             display: flex;
             gap: 8px;
@@ -230,27 +227,6 @@
             flex: 1;
         }
 
-        .filter-reset-icon {
-            position: absolute;
-            right: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2px 4px;
-            border-radius: 4px;
-            cursor: pointer;
-            line-height: 1;
-            font-size: 14px;
-            opacity: 0.8;
-            transition: var(--transition);
-        }
-
-        .filter-reset-icon:hover {
-            opacity: 1;
-            background-color: rgba(255, 255, 255, 0.15);
-        }
-
-        /* Menu Nav Drawer Items */
         .menu-list {
             list-style: none;
             display: flex;
@@ -283,7 +259,6 @@
             font-weight: 600;
         }
 
-        /* Container & Controls */
         main {
             flex: 1;
             max-width: 800px;
@@ -318,7 +293,7 @@
             align-items: center;
         }
 
-        .form-row input[type="text"] {
+        .form-row input[type="text"], .form-row input[type="date"] {
             flex: 1;
         }
 
@@ -367,7 +342,6 @@
             overflow-y: auto;
         }
 
-        /* Chips */
         .chip {
             background-color: var(--surface-hover);
             border: 1px solid var(--border-color);
@@ -409,7 +383,6 @@
             box-shadow: 0 0 6px var(--primary-color);
         }
 
-        /* Cards & Tags Displays */
         .cards-container {
             display: flex;
             flex-direction: column;
@@ -476,7 +449,6 @@
             padding: 2px 8px;
         }
 
-        /* Drawers & Modals */
         .drawer-overlay {
             position: fixed;
             top: 0;
@@ -534,6 +506,61 @@
             padding-bottom: 10px;
         }
 
+        .bottom-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            background-color: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            border-radius: 16px 16px 0 0;
+            z-index: 250;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .bottom-drawer.active {
+            transform: translateY(0);
+        }
+
+        .bottom-drawer-heading {
+            font-size: 16px;
+            font-weight: bold;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--primary-color);
+        }
+
+        .bottom-drawer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .bottom-drawer-btn {
+            padding: 12px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            text-align: left;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .bottom-drawer-btn:hover {
+            background-color: var(--surface-hover);
+            border-color: var(--primary-color);
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -564,6 +591,7 @@
             padding: 16px;
             box-shadow: var(--shadow);
             overflow-y: auto;
+            position: relative;
         }
 
         .modal-header {
@@ -573,6 +601,18 @@
             margin-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
+        }
+
+        .header-title-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .modal-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: normal;
         }
 
         .modal-body {
@@ -607,6 +647,305 @@
             justify-content: center;
         }
 
+        .schedule-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .schedule-date-selector-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 8px;
+            flex: 1;
+            height: 38px;
+        }
+
+        .arrow-nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 10px;
+            border-radius: 4px;
+            user-select: none;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .arrow-nav-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .schedule-date-input {
+            border: none !important;
+            background: transparent !important;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-color);
+            cursor: pointer;
+            flex: 1;
+            height: 100%;
+            padding: 0;
+        }
+
+        .schedule-date-item {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .schedule-date-item.highlighted {
+            border-color: var(--highlight-color);
+            box-shadow: 0 0 12px var(--highlight-color);
+        }
+
+        .schedule-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background-color: var(--surface-hover);
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .schedule-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            flex: 1;
+        }
+
+        .schedule-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .no-bg-btn {
+            background: none !important;
+            border: none !important;
+            color: var(--text-color);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            transition: var(--transition);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .no-bg-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .no-bg-btn.plus-icon {
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .no-bg-btn.dots-icon {
+            font-size: 22px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .schedule-date-body {
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .schedule-section-item {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            overflow: hidden;
+        }
+
+        .schedule-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background-color: rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .schedule-section-body {
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .empty-text {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 13px;
+            padding: 6px 0;
+        }
+
+        .schedule-card-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: grab;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .schedule-card-bar:active {
+            cursor: grabbing;
+        }
+
+        .schedule-card-bar:hover {
+            border-color: var(--primary-color);
+        }
+
+        .schedule-card-bar .card-name {
+            font-size: 14px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .card-checkbox-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .card-checkbox-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .card-checkbox-item.highlighted {
+            border-color: var(--highlight-color);
+            box-shadow: 0 0 12px var(--highlight-color);
+        }
+
+        .card-checkbox-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .card-checkbox-left input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .info-btn-circle {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .info-btn-circle:hover {
+            background-color: var(--surface-hover);
+            border-color: var(--primary-color);
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #323232;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #toast-container.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .checkbox-row-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 8px;
+        }
+
+        .checkbox-row-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .checkbox-row-item:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .select-all-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -637,6 +976,7 @@
         <ul class="menu-list">
             <li class="menu-item active" data-view="cards" onclick="selectSection('cards')" data-i18n="nav_cards">Cards</li>
             <li class="menu-item" data-view="tags" onclick="selectSection('tags')" data-i18n="nav_tags">Tags</li>
+            <li class="menu-item" data-view="schedule" onclick="selectSection('schedule')" data-i18n="nav_schedule">Schedule</li>
         </ul>
     </div>
 
@@ -656,7 +996,6 @@
                 <div class="controls-row">
                     <button class="btn filter-btn" onclick="openFilterModal()">
                         <span id="filter-btn-text" class="filter-btn-text" data-i18n="btn_filter">Filter</span>
-                        <span id="filter-reset-icon" class="filter-reset-icon hidden" onclick="event.stopPropagation(); resetFiltersDirectly();" title="Clear Filters">&#x21bb;</span>
                     </button>
                     <button class="btn btn-primary" onclick="triggerSurpriseMe()" data-i18n="btn_surprise_me">Surprise Me</button>
                 </div>
@@ -679,7 +1018,32 @@
 
             <div id="tags-list" class="cards-container"></div>
         </section>
+
+        <!-- SECTION 3: SCHEDULE -->
+        <section id="view-schedule" class="view-section hidden">
+            <div class="sticky-controls" id="schedule-sticky-header">
+                <div class="schedule-top-bar">
+                    <div class="schedule-date-selector-box">
+                        <button class="arrow-nav-btn" onclick="shiftTopScheduleDate(-1)">&lt;</button>
+                        <input type="date" id="top-schedule-date-picker" class="schedule-date-input" onchange="onTopDateInputChange()">
+                        <button class="arrow-nav-btn" onclick="shiftTopScheduleDate(1)">&gt;</button>
+                    </div>
+                    <button class="btn btn-primary plus-btn" onclick="onTopAddScheduleDateBtnPressed()" title="Add Schedule Date">+</button>
+                </div>
+            </div>
+
+            <div id="schedule-list" class="cards-container"></div>
+        </section>
     </main>
+
+    <!-- BOTTOM DRAWER FOR SCHEDULE CONTEXT MENU -->
+    <div id="bottom-drawer" class="bottom-drawer">
+        <div id="bottom-drawer-heading" class="bottom-drawer-heading">Entity Title</div>
+        <div id="bottom-drawer-options" class="bottom-drawer-options"></div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-container"></div>
 
     <!-- CREATE / EDIT TAG MODAL -->
     <div id="tag-modal" class="modal-overlay">
@@ -691,12 +1055,18 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label data-i18n="lbl_tag_key">Tag Key Name *</label>
-                    <input type="text" id="tag-key-input" placeholder="e.g. Priority" data-i18n-ph="ph_tag_key">
+                    <div class="input-clear-wrapper">
+                        <input type="text" id="tag-key-input" placeholder="e.g. Priority" oninput="toggleInputClearBtn(this)" data-i18n-ph="ph_tag_key">
+                        <button class="clear-input-btn" onclick="clearWrapperInput(this)">&times;</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label data-i18n="lbl_tag_values">Add Tag Values</label>
                     <div class="form-row">
-                        <input type="text" id="tag-value-input" placeholder="e.g. High" data-i18n-ph="ph_tag_value">
+                        <div class="input-clear-wrapper">
+                            <input type="text" id="tag-value-input" placeholder="e.g. High" oninput="toggleInputClearBtn(this)" data-i18n-ph="ph_tag_value">
+                            <button class="clear-input-btn" onclick="clearWrapperInput(this)">&times;</button>
+                        </div>
                         <button class="btn btn-primary plus-btn" id="tag-val-submit-btn" onclick="addValueToTagBuffer()">+</button>
                     </div>
                 </div>
@@ -719,7 +1089,10 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label data-i18n="lbl_card_name">Card Name *</label>
-                    <input type="text" id="card-name-input" placeholder="e.g. Dal Baati" data-i18n-ph="ph_card_name">
+                    <div class="input-clear-wrapper">
+                        <input type="text" id="card-name-input" placeholder="e.g. Dal Baati" oninput="toggleInputClearBtn(this)" data-i18n-ph="ph_card_name">
+                        <button class="clear-input-btn" onclick="clearWrapperInput(this)">&times;</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label data-i18n="lbl_card_desc">Description (Optional)</label>
@@ -772,6 +1145,189 @@
             <div class="modal-footer">
                 <button class="btn" onclick="clearAllFilters()" data-i18n="btn_clear">Clear</button>
                 <button class="btn btn-primary" onclick="applyFilters()" data-i18n="btn_apply">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD/RENAME SECTION MODAL -->
+    <div id="schedule-section-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="header-title-box">
+                    <h3 id="schedule-section-modal-heading" data-i18n="modal_title_add_section">Add Section</h3>
+                    <div id="schedule-section-modal-subtext" class="modal-subtext"></div>
+                </div>
+                <button class="icon-btn close-btn" onclick="closeModal('schedule-section-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="lbl_section_name">Section Name *</label>
+                    <div class="input-clear-wrapper">
+                        <input type="text" id="schedule-section-name-input" placeholder="e.g. Breakfast" oninput="toggleInputClearBtn(this)">
+                        <button class="clear-input-btn" onclick="clearWrapperInput(this)">&times;</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveScheduleSectionName()" data-i18n="btn_save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMPORT TAGS AS SECTIONS MODAL -->
+    <div id="import-tags-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="header-title-box">
+                    <h3 id="import-tags-modal-heading" data-i18n="modal_title_import_tags">Import Tags as Sections</h3>
+                    <div id="import-tags-modal-subtext" class="modal-subtext"></div>
+                </div>
+                <button class="icon-btn close-btn" onclick="closeModal('import-tags-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="input-clear-wrapper">
+                        <input type="text" id="import-tag-search-input" placeholder="Search tags by key or value..." oninput="handleImportTagSearchInput(this)" data-i18n-ph="ph_search_tags">
+                        <button class="clear-input-btn" onclick="clearWrapperInput(this); renderImportTagList();">&times;</button>
+                    </div>
+                </div>
+                <div id="import-tag-list-container" class="cards-container" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('import-tags-modal')" data-i18n="btn_cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COPY TO DATES MODAL -->
+    <div id="copy-dates-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="header-title-box">
+                    <h3 id="copy-dates-modal-heading" data-i18n="modal_title_copy_to_dates">Copy to Dates</h3>
+                    <div id="copy-dates-modal-subtext" class="modal-subtext"></div>
+                </div>
+                <button class="icon-btn close-btn" onclick="closeModal('copy-dates-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="lbl_start_date">Start Date</label>
+                    <input type="date" id="copy-start-date" onchange="onCopyStartDateChange()">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lbl_end_date">End Date</label>
+                    <input type="date" id="copy-end-date" onchange="onCopyEndDateChange()">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="copy-include-cards" checked> <span data-i18n="lbl_include_cards">Include Cards</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="proceedCopyToDates()" data-i18n="btn_copy_schedule">Copy Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERWRITE PROMPT MODAL -->
+    <div id="copy-overwrite-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="title_overwrite_prompt">Existing Schedule Dates Found</h3>
+                <button class="icon-btn close-btn" onclick="closeModal('copy-overwrite-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p data-i18n="msg_select_overwrite">Select which existing schedule dates should be overwritten:</p>
+                <div class="checkbox-row-list">
+                    <label class="select-all-row">
+                        <input type="checkbox" id="overwrite-select-all" onchange="toggleOverwriteSelectAll(this)">
+                        <span data-i18n="lbl_select_all">Select All</span>
+                    </label>
+                    <div id="overwrite-dates-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="confirmOverwriteAndCopy()" data-i18n="btn_copy_schedule">Copy Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD CARDS TO SECTION MODAL -->
+    <div id="add-cards-modal" class="modal-overlay">
+        <div class="modal-content" style="max-height: 90vh;">
+            <div class="modal-header">
+                <div class="header-title-box">
+                    <h3 id="add-cards-modal-heading" data-i18n="modal_title_add_cards">Add Cards</h3>
+                    <div id="add-cards-modal-subtext" class="modal-subtext"></div>
+                </div>
+                <button class="icon-btn close-btn" onclick="closeModal('add-cards-modal')">&times;</button>
+            </div>
+            <div class="sticky-controls" style="top: 0; margin-bottom: 8px;">
+                <div class="search-plus-bar">
+                    <div class="input-clear-wrapper">
+                        <input type="text" id="add-cards-search-text" placeholder="Search cards by name..." oninput="handleAddCardsSearchInput(this)" data-i18n-ph="ph_search_cards">
+                        <button class="clear-input-btn" onclick="clearWrapperInput(this); renderAddCardsChecklist();">&times;</button>
+                    </div>
+                </div>
+                <div class="controls-row">
+                    <button class="btn filter-btn" onclick="openAddCardsFilterModal()">
+                        <span id="add-cards-filter-btn-text" class="filter-btn-text" data-i18n="btn_filter">Filter</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="triggerAddCardsSurpriseMe()" data-i18n="btn_surprise_me">Surprise Me</button>
+                </div>
+            </div>
+            <div class="modal-body" style="flex:1; overflow-y:auto;">
+                <div id="add-cards-checklist" class="cards-container"></div>
+            </div>
+            <div class="modal-footer" style="position: sticky; bottom: 0; background: var(--surface-color); z-index: 10;">
+                <button class="btn btn-primary" onclick="saveAddCardsToSection()" style="width: 100%; justify-content: center;" data-i18n="btn_done">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD CARDS SPECIFIC FILTER MODAL -->
+    <div id="add-cards-filter-modal" class="modal-overlay" style="z-index: 400;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="filter_tags_title">Filter Cards</h3>
+                <button class="icon-btn close-btn" onclick="closeModal('add-cards-filter-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="lbl_add_filter_tag">Add Tag Filter</label>
+                    <select id="add-cards-filter-tag-key-select" onchange="onAddCardsFilterKeyChange()">
+                        <option value="" data-i18n="select_tag_key">-- Select Tag Key --</option>
+                    </select>
+                </div>
+
+                <div id="add-cards-filter-tag-values-box" class="tag-selector-box hidden">
+                    <div id="add-cards-filter-tag-values-cloud" class="tag-values-cloud"></div>
+                    <button class="btn btn-primary" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="addCardsFilterToBuffer()" data-i18n="btn_add_filter">Add Tag Filter</button>
+                </div>
+
+                <div id="add-cards-active-filters-cloud" class="tag-values-cloud" style="margin-top: 12px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="clearAllAddCardsFilters()" data-i18n="btn_clear">Clear</button>
+                <button class="btn btn-primary" onclick="applyAddCardsFilters()" data-i18n="btn_apply">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD FULL DETAIL DISPLAY OVERLAY -->
+    <div id="card-info-modal" class="modal-overlay" style="z-index: 500;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="card-info-title">Card Details</h3>
+                <button class="icon-btn close-btn" onclick="closeModal('card-info-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="card-info-desc" class="item-card-desc"></div>
+                <div id="card-info-tags" class="item-card-tags"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('card-info-modal')" data-i18n="btn_close">Close</button>
             </div>
         </div>
     </div>
@@ -854,6 +1410,7 @@
                 title_menu: "Menu",
                 nav_cards: "Cards",
                 nav_tags: "Tags",
+                nav_schedule: "Schedule",
                 filter_tags_title: "Filter Cards",
                 select_tag_key: "-- Select Tag Key --",
                 btn_add_filter: "Add Tag Filter",
@@ -898,15 +1455,46 @@
                 ph_paste_json: "Paste JSON here or upload a file below...",
                 btn_choose_file: "Upload File",
                 btn_apply: "Apply",
+                btn_done: "Done",
+                btn_cancel: "Cancel",
+                btn_close: "Close",
+                btn_confirm: "Confirm & Copy",
+                btn_copy_schedule: "Copy Schedule",
+                lbl_select_all: "Select All",
                 msg_copied: "Copied to clipboard!",
                 msg_invalid_json: "Invalid JSON provided!",
                 msg_empty_name: "Please enter a card name.",
-                msg_empty_tag_key: "Please enter a Tag Key Name."
+                msg_empty_tag_key: "Please enter a Tag Key Name.",
+                opt_add_section: "Add Section",
+                opt_import_tags: "Import Tags",
+                opt_copy_to_dates: "Copy to Dates",
+                opt_remove: "Remove",
+                opt_add_cards: "Add Cards",
+                opt_rename: "Rename Section",
+                opt_move_up: "Move Up",
+                opt_move_down: "Move Down",
+                msg_empty_schedule_date: "No sections added yet",
+                msg_empty_schedule_section: "No cards added yet",
+                msg_date_not_found: "Date {date} does not exist in the schedule list",
+                prompt_remove_date: "Are you sure you want to remove schedule for {date}?",
+                prompt_remove_section: "Are you sure you want to remove section \"{section}\" from {date}?",
+                lbl_section_name: "Section Name *",
+                lbl_start_date: "Start Date",
+                lbl_end_date: "End Date",
+                lbl_include_cards: "Include Cards",
+                title_overwrite_prompt: "Existing Schedule Dates Found",
+                msg_select_overwrite: "Select which existing schedule dates should be overwritten:",
+                modal_title_add_section: "Add Section",
+                modal_title_rename_section: "Rename Section",
+                modal_title_import_tags: "Import Tags",
+                modal_title_copy_to_dates: "Copy to Dates",
+                modal_title_add_cards: "Add Cards"
             },
             hindi: {
                 title_menu: "मेन्यू",
                 nav_cards: "कार्ड्स",
                 nav_tags: "टैग्स",
+                nav_schedule: "अनुसूची (Schedule)",
                 filter_tags_title: "फ़िल्टर कार्ड्स",
                 select_tag_key: "-- टैग कुंजी चुनें --",
                 btn_add_filter: "टैग फ़िल्टर जोड़ें",
@@ -951,10 +1539,40 @@
                 ph_paste_json: "यहाँ JSON पेस्ट करें या नीचे फ़ाइल अपलोड करें...",
                 btn_choose_file: "फ़ाइल अपलोड करें",
                 btn_apply: "लागू करें",
+                btn_done: "संपन्न",
+                btn_cancel: "रद्द करें",
+                btn_close: "बंद करें",
+                btn_confirm: "पुष्टि करें और अनुसूची कॉपी करें",
+                btn_copy_schedule: "अनुसूची कॉपी करें",
+                lbl_select_all: "सभी चुनें",
                 msg_copied: "क्लिपबोर्ड पर कॉपी हो गया!",
                 msg_invalid_json: "अमान्य JSON प्रदान किया गया!",
                 msg_empty_name: "कृपया कार्ड का नाम दर्ज करें।",
-                msg_empty_tag_key: "कृपया टैग कुंजी नाम दर्ज करें।"
+                msg_empty_tag_key: "कृपया टैग कुंजी नाम दर्ज करें।",
+                opt_add_section: "अनुभाग जोड़ें",
+                opt_import_tags: "टैग आयात करें",
+                opt_copy_to_dates: "तारीखों में कॉपी करें",
+                opt_remove: "हटाएं",
+                opt_add_cards: "कार्ड जोड़ें",
+                opt_rename: "अनुभाग का नाम बदलें",
+                opt_move_up: "ऊपर ले जाएं",
+                opt_move_down: "नीचे ले जाएं",
+                msg_empty_schedule_date: "अभी तक कोई अनुभाग नहीं जोड़ा गया",
+                msg_empty_schedule_section: "अभी तक कोई कार्ड नहीं जोड़ा गया",
+                msg_date_not_found: "तारीख {date} अनुसूची सूची में मौजूद नहीं है",
+                prompt_remove_date: "क्या आप निश्चित रूप से {date} की अनुसूची हटाना चाहते हैं?",
+                prompt_remove_section: "क्या आप निश्चित रूप से {date} से अनुभाग \"{section}\" हटाना चाहते हैं?",
+                lbl_section_name: "अनुभाग नाम *",
+                lbl_start_date: "प्रारंभिक तिथि",
+                lbl_end_date: "अंतिम तिथि",
+                lbl_include_cards: "कार्ड शामिल करें",
+                title_overwrite_prompt: "मौजूदा अनुसूची तिथियां मिलीं",
+                msg_select_overwrite: "चुनें कि कौन सी मौजूदा अनुसूची तिथियों को ओवरराइट किया जाना चाहिए:",
+                modal_title_add_section: "अनुभाग जोड़ें",
+                modal_title_rename_section: "अनुभाग का नाम बदलें",
+                modal_title_import_tags: "टैग आयात करें",
+                modal_title_copy_to_dates: "तारीखों में कॉपी करें",
+                modal_title_add_cards: "कार्ड जोड़ें"
             }
         };
 
@@ -965,7 +1583,8 @@
                 currentView: "cards"
             },
             tags: {},
-            cards: []
+            cards: [],
+            schedule: {} // Structure: { "YYYY-MM-DD": { collapsed: bool, sections: [ { id, name, collapsed: bool, cards: [cardId1, cardId2] } ] } }
         };
 
         let currentThemeMode = localStorage.getItem('app_theme_mode') || 'system';
@@ -976,7 +1595,7 @@
         let editingValueIndex = null;
 
         let initialCardState = null;
-        let cardBufferTags = {}; // { Key: [values] }
+        let cardBufferTags = {};
         let currentSelectingCardKey = null;
         let currentSelectingCardValues = [];
         let editingCardId = null;
@@ -986,6 +1605,24 @@
         let currentSelectingFilterKey = null;
         let currentSelectingFilterValues = [];
 
+        // Schedule View Active States & Context Buffers
+        let activeScheduleContext = null;
+        let currentEditingSectionId = null;
+        let currentEditingDateIso = null;
+
+        let addCardsSelectedIds = [];
+        let addCardsAppliedFilters = {};
+        let addCardsFilterBuffer = {};
+        let addCardsSelectingKey = null;
+        let addCardsSelectingValues = [];
+
+        let copyPendingConfig = null;
+
+        // Drag and Drop reorder state
+        let draggedCardIndex = null;
+        let dragSourceDateIso = null;
+        let dragSourceSectionId = null;
+
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
             if (currentThemeMode === 'system') applyTheme();
         });
@@ -994,6 +1631,7 @@
             loadStateFromStorage();
             applyLanguage();
             applyTheme();
+            initTopScheduleDateBox();
             switchView(appState.defaults.currentView || "cards");
         });
 
@@ -1009,7 +1647,7 @@
                     if (!appState.defaults) appState.defaults = { language: "english", currentView: "cards" };
                     if (!appState.tags) appState.tags = {};
                     if (!appState.cards) appState.cards = [];
-                    // Ensure all tags are multi-select
+                    if (!appState.schedule) appState.schedule = {};
                     Object.keys(appState.tags).forEach(k => {
                         appState.tags[k].type = 'multi';
                     });
@@ -1019,7 +1657,53 @@
             }
         }
 
-        // --- Controls ---
+        // --- Helper Formatting Utilities ---
+        function getTodayIso() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function formatDateDisplay(isoStr) {
+            if (!isoStr) return '';
+            const parts = isoStr.split('-');
+            const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            return dateObj.toLocaleDateString('en-US', options);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast-container');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleInputClearBtn(inputEl) {
+            const wrapper = inputEl.closest('.input-clear-wrapper');
+            if (!wrapper) return;
+            const btn = wrapper.querySelector('.clear-input-btn');
+            if (btn) {
+                btn.style.display = inputEl.value.length > 0 ? 'block' : 'none';
+            }
+        }
+
+        function clearWrapperInput(btnEl) {
+            const wrapper = btnEl.closest('.input-clear-wrapper');
+            if (!wrapper) return;
+            const input = wrapper.querySelector('input');
+            if (input) {
+                input.value = '';
+                btnEl.style.display = 'none';
+                input.dispatchEvent(new Event('input'));
+            }
+        }
+
+        // --- Search Controls ---
         function handleSearchCardInput() {
             const val = document.getElementById('search-card-text').value;
             document.getElementById('search-card-clear-btn').style.display = val.length > 0 ? 'block' : 'none';
@@ -1034,8 +1718,7 @@
 
         function handleSearchTagInput() {
             const val = document.getElementById('search-tag-text').value;
-            document.getElementById('search-tag-clear-btn').style.display = 'none';
-            if (val.length > 0) document.getElementById('search-tag-clear-btn').style.display = 'block';
+            document.getElementById('search-tag-clear-btn').style.display = val.length > 0 ? 'block' : 'none';
             renderTagsList();
         }
 
@@ -1061,6 +1744,7 @@
 
             if (viewName === 'cards') renderCards();
             if (viewName === 'tags') renderTagsList();
+            if (viewName === 'schedule') renderScheduleList();
 
             saveStateToStorage();
         }
@@ -1070,7 +1754,8 @@
             const dict = i18nData[appState.defaults.language] || i18nData.english;
             const titleMap = {
                 cards: dict.nav_cards,
-                tags: dict.nav_tags
+                tags: dict.nav_tags,
+                schedule: dict.nav_schedule
             };
             document.getElementById('active-section-name').textContent = titleMap[viewName] || '';
         }
@@ -1109,6 +1794,7 @@
         function closeAllDrawers() {
             document.getElementById('menu-drawer').classList.remove('active');
             document.getElementById('settings-drawer').classList.remove('active');
+            document.getElementById('bottom-drawer').classList.remove('active');
             document.getElementById('drawer-overlay').classList.remove('active');
         }
 
@@ -1132,6 +1818,7 @@
             updateHeaderTitle();
             saveStateToStorage();
             updateFilterButtonUI();
+            if (appState.defaults.currentView === 'schedule') renderScheduleList();
         }
 
         function applyLanguage() {
@@ -1185,8 +1872,14 @@
             editingTagKey = null;
             editingValueIndex = null;
             const searchVal = document.getElementById('search-tag-text').value.trim();
-            document.getElementById('tag-key-input').value = searchVal;
-            document.getElementById('tag-value-input').value = '';
+            const keyInput = document.getElementById('tag-key-input');
+            keyInput.value = searchVal;
+            toggleInputClearBtn(keyInput);
+
+            const valInput = document.getElementById('tag-value-input');
+            valInput.value = '';
+            toggleInputClearBtn(valInput);
+
             tagBufferValues = [];
 
             const dict = i18nData[appState.defaults.language] || i18nData.english;
@@ -1202,8 +1895,15 @@
             editingTagKey = key;
             editingValueIndex = null;
             const tag = appState.tags[key];
-            document.getElementById('tag-key-input').value = key;
-            document.getElementById('tag-value-input').value = '';
+
+            const keyInput = document.getElementById('tag-key-input');
+            keyInput.value = key;
+            toggleInputClearBtn(keyInput);
+
+            const valInput = document.getElementById('tag-value-input');
+            valInput.value = '';
+            toggleInputClearBtn(valInput);
+
             tagBufferValues = [...tag.values];
 
             const dict = i18nData[appState.defaults.language] || i18nData.english;
@@ -1224,8 +1924,10 @@
         function selectValueForEdit(index) {
             if (index >= 0 && index < tagBufferValues.length) {
                 editingValueIndex = index;
-                document.getElementById('tag-value-input').value = tagBufferValues[index];
-                document.getElementById('tag-value-input').focus();
+                const valInput = document.getElementById('tag-value-input');
+                valInput.value = tagBufferValues[index];
+                toggleInputClearBtn(valInput);
+                valInput.focus();
                 updateTagValSubmitBtnLabel();
                 renderTagBufferCloud();
             }
@@ -1245,6 +1947,7 @@
             updateTagValSubmitBtnLabel();
             renderTagBufferCloud();
             valInput.value = '';
+            toggleInputClearBtn(valInput);
         }
 
         function removeValueFromTagBuffer(val) {
@@ -1253,7 +1956,9 @@
                 tagBufferValues.splice(index, 1);
                 if (editingValueIndex === index) {
                     editingValueIndex = null;
-                    document.getElementById('tag-value-input').value = '';
+                    const valInput = document.getElementById('tag-value-input');
+                    valInput.value = '';
+                    toggleInputClearBtn(valInput);
                 } else if (editingValueIndex > index) {
                     editingValueIndex--;
                 }
@@ -1335,15 +2040,20 @@
         }
 
         function resetTagForm() {
+            const keyInput = document.getElementById('tag-key-input');
+            const valInput = document.getElementById('tag-value-input');
+
             if (editingTagKey && appState.tags[editingTagKey]) {
-                document.getElementById('tag-key-input').value = editingTagKey;
+                keyInput.value = editingTagKey;
                 tagBufferValues = [...appState.tags[editingTagKey].values];
             } else {
-                document.getElementById('tag-key-input').value = '';
+                keyInput.value = '';
                 tagBufferValues = [];
             }
             editingValueIndex = null;
-            document.getElementById('tag-value-input').value = '';
+            valInput.value = '';
+            toggleInputClearBtn(keyInput);
+            toggleInputClearBtn(valInput);
             updateTagValSubmitBtnLabel();
             renderTagBufferCloud();
         }
@@ -1400,7 +2110,10 @@
                 tags: {}
             };
 
-            document.getElementById('card-name-input').value = initialCardState.name;
+            const nameInput = document.getElementById('card-name-input');
+            nameInput.value = initialCardState.name;
+            toggleInputClearBtn(nameInput);
+
             document.getElementById('card-desc-input').value = '';
             cardBufferTags = {};
 
@@ -1419,7 +2132,10 @@
             editingCardId = card.id;
             initialCardState = JSON.parse(JSON.stringify(card));
 
-            document.getElementById('card-name-input').value = card.name;
+            const nameInput = document.getElementById('card-name-input');
+            nameInput.value = card.name;
+            toggleInputClearBtn(nameInput);
+
             document.getElementById('card-desc-input').value = card.desc || '';
             cardBufferTags = JSON.parse(JSON.stringify(card.tags || {}));
 
@@ -1562,20 +2278,29 @@
                 return;
             }
             appState.cards = appState.cards.filter(c => c.id !== cardId);
+            
+            Object.keys(appState.schedule).forEach(dateIso => {
+                appState.schedule[dateIso].sections.forEach(sec => {
+                    sec.cards = sec.cards.filter(id => id !== cardId);
+                });
+            });
+
             renderCards();
             saveStateToStorage();
         }
 
         function resetCardForm() {
+            const nameInput = document.getElementById('card-name-input');
             if (initialCardState) {
-                document.getElementById('card-name-input').value = initialCardState.name || '';
+                nameInput.value = initialCardState.name || '';
                 document.getElementById('card-desc-input').value = initialCardState.desc || '';
                 cardBufferTags = JSON.parse(JSON.stringify(initialCardState.tags || {}));
             } else {
-                document.getElementById('card-name-input').value = '';
+                nameInput.value = '';
                 document.getElementById('card-desc-input').value = '';
                 cardBufferTags = {};
             }
+            toggleInputClearBtn(nameInput);
             document.getElementById('card-tag-key-select').value = '';
             document.getElementById('card-tag-values-box').classList.add('hidden');
             currentSelectingCardKey = null;
@@ -1583,7 +2308,7 @@
             renderCardBufferTagsCloud();
         }
 
-        // --- FILTER MODAL ---
+        // --- FILTER MODAL FOR CARDS SECTION ---
         function openFilterModal() {
             filterBufferTags = JSON.parse(JSON.stringify(appliedFilters));
             populateFilterKeyDropdown();
@@ -1704,30 +2429,25 @@
             renderCards();
         }
 
-        function resetFiltersDirectly() {
-            appliedFilters = {};
-            filterBufferTags = {};
-            renderCards();
-        }
-
         function updateFilterButtonUI() {
             const baseText = (i18nData[appState.defaults.language] || i18nData.english).btn_filter;
-            const filterKeys = Object.keys(appliedFilters).filter(k => appliedFilters[k] && appliedFilters[k].length > 0);
             
-            const btnTextEl = document.getElementById('filter-btn-text');
-            const resetIconEl = document.getElementById('filter-reset-icon');
+            let totalValuesCount = 0;
+            Object.keys(appliedFilters).forEach(key => {
+                if (appliedFilters[key] && Array.isArray(appliedFilters[key])) {
+                    totalValuesCount += appliedFilters[key].length;
+                }
+            });
 
-            if (filterKeys.length > 0) {
-                const count = getFilteredCards().length;
-                btnTextEl.textContent = `${baseText} (${count})`;
-                resetIconEl.classList.remove('hidden');
+            const btnTextEl = document.getElementById('filter-btn-text');
+            if (totalValuesCount > 0) {
+                btnTextEl.textContent = `${baseText} (${totalValuesCount})`;
             } else {
                 btnTextEl.textContent = baseText;
-                resetIconEl.classList.add('hidden');
             }
         }
 
-        // --- RENDER & SEARCH CARDS ---
+        // --- RENDER CARDS ---
         function getFilteredCards() {
             const textQuery = document.getElementById('search-card-text').value.toLowerCase();
             
@@ -1794,84 +2514,915 @@
             }
         }
 
-        // --- IMPORT / EXPORT ---
-        function openDownloadModal() {
-            closeAllDrawers();
-            const modal = document.getElementById('download-modal');
-            const area = document.getElementById('download-json-area');
-
-            const exportState = JSON.parse(JSON.stringify(appState));
-            area.value = JSON.stringify(exportState, null, 2);
-            openModal('download-modal');
+        // --- SECTION 3: SCHEDULE MANAGEMENT ---
+        function initTopScheduleDateBox() {
+            const picker = document.getElementById('top-schedule-date-picker');
+            picker.value = getTodayIso();
         }
 
-        function openUploadModal() {
-            closeAllDrawers();
-            document.getElementById('upload-json-area').value = '';
-            openModal('upload-modal');
+        function shiftTopScheduleDate(days) {
+            const picker = document.getElementById('top-schedule-date-picker');
+            let currentVal = picker.value || getTodayIso();
+            const parts = currentVal.split('-');
+            const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            dateObj.setDate(dateObj.getDate() + days);
+
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            picker.value = `${yyyy}-${mm}-${dd}`;
+
+            handleTopDateSelectionUpdated(false);
         }
 
-        function copyToClipboard() {
-            const area = document.getElementById('download-json-area');
-            area.select();
-            area.setSelectionRange(0, 99999);
+        function onTopDateInputChange() {
+            handleTopDateSelectionUpdated(false);
+        }
 
-            try {
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(area.value).then(() => {
-                        alert((i18nData[appState.defaults.language]||i18nData.english).msg_copied);
-                    });
-                } else {
-                    document.execCommand('copy');
-                    alert((i18nData[appState.defaults.language]||i18nData.english).msg_copied);
+        function onTopAddScheduleDateBtnPressed() {
+            handleTopDateSelectionUpdated(true);
+        }
+
+        function handleTopDateSelectionUpdated(isAddPressed) {
+            const picker = document.getElementById('top-schedule-date-picker');
+            const selectedDateIso = picker.value || getTodayIso();
+            const exists = !!appState.schedule[selectedDateIso];
+
+            if (isAddPressed) {
+                if (!exists) {
+                    appState.schedule[selectedDateIso] = { collapsed: false, sections: [] };
+                    saveStateToStorage();
                 }
-            } catch (err) {
-                alert("Failed to copy state!");
+                renderScheduleList();
+                scrollToAndHighlightScheduleDate(selectedDateIso);
+                return;
+            }
+
+            if (!exists) {
+                const formattedFormattedDate = formatDateDisplay(selectedDateIso);
+                const dict = i18nData[appState.defaults.language] || i18nData.english;
+                showToast(dict.msg_date_not_found.replace('{date}', formattedFormattedDate));
+            } else {
+                Object.keys(appState.schedule).forEach(dateKey => {
+                    if (dateKey === selectedDateIso) {
+                        appState.schedule[dateKey].collapsed = false;
+                        appState.schedule[dateKey].sections.forEach(sec => sec.collapsed = false);
+                    } else {
+                        appState.schedule[dateKey].collapsed = true;
+                    }
+                });
+                saveStateToStorage();
+                renderScheduleList();
+                scrollToAndHighlightScheduleDate(selectedDateIso);
             }
         }
 
-        function downloadStateFile() {
-            const exportState = JSON.parse(JSON.stringify(appState));
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportState, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `app_state_${Date.now()}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+        function scrollToAndHighlightScheduleDate(dateIso) {
+            const dateEl = document.getElementById(`schedule-date-card-${dateIso}`);
+            if (!dateEl) return;
+
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const stickyHeight = document.getElementById('schedule-sticky-header').offsetHeight;
+            const totalOffset = headerHeight + stickyHeight + 10;
+
+            const elementPosition = dateEl.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = elementPosition - totalOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+
+            dateEl.classList.add('highlighted');
+            setTimeout(() => {
+                dateEl.classList.remove('highlighted');
+            }, 2000);
         }
 
-        function handleFileUpload(e) {
-            const file = e.target.files[0];
+        function renderScheduleList() {
+            const container = document.getElementById('schedule-list');
+            container.innerHTML = '';
+
+            const sortedDates = Object.keys(appState.schedule).sort((a, b) => a.localeCompare(b));
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+
+            sortedDates.forEach(dateIso => {
+                const dateData = appState.schedule[dateIso];
+                const dateEl = document.createElement('div');
+                dateEl.className = 'schedule-date-item';
+                dateEl.id = `schedule-date-card-${dateIso}`;
+
+                const dateFormattedStr = formatDateDisplay(dateIso);
+
+                let sectionsHtml = '';
+                if (!dateData.collapsed) {
+                    if (!dateData.sections || dateData.sections.length === 0) {
+                        sectionsHtml = `<div class="empty-text">${dict.msg_empty_schedule_date}</div>`;
+                    } else {
+                        sectionsHtml = dateData.sections.map(sec => {
+                            let cardsHtml = '';
+                            if (!sec.collapsed) {
+                                if (!sec.cards || sec.cards.length === 0) {
+                                    cardsHtml = `<div class="empty-text">${dict.msg_empty_schedule_section}</div>`;
+                                } else {
+                                    cardsHtml = sec.cards.map((cardId, cardIndex) => {
+                                        const card = appState.cards.find(c => c.id === cardId);
+                                        const cardTitle = card ? card.name : 'Unknown Card';
+                                        return `
+                                            <div class="schedule-card-bar" 
+                                                 draggable="true" 
+                                                 ondragstart="handleCardDragStart(event, '${dateIso}', '${sec.id}', ${cardIndex})"
+                                                 ondragover="handleCardDragOver(event)"
+                                                 ondrop="handleCardDrop(event, '${dateIso}', '${sec.id}', ${cardIndex})"
+                                                 onclick="openCardInfoModal('${cardId}')">
+                                                <span class="card-name">${cardTitle}</span>
+                                                <button class="no-bg-btn" style="color:var(--text-muted); font-size:18px;" onclick="event.stopPropagation(); removeCardFromSection('${dateIso}', '${sec.id}', ${cardIndex})" title="Remove Card">&times;</button>
+                                            </div>
+                                        `;
+                                    }).join('');
+                                }
+                            }
+
+                            return `
+                                <div class="schedule-section-item">
+                                    <div class="schedule-section-header" onclick="toggleSectionCollapse('${dateIso}', '${sec.id}')">
+                                        <div class="schedule-header-left">
+                                            <span>${sec.collapsed ? '▶' : '▼'}</span>
+                                            <span>${sec.name}</span>
+                                        </div>
+                                        <div class="schedule-header-actions" onclick="event.stopPropagation();">
+                                            <button class="no-bg-btn plus-icon" onclick="openAddCardsToSectionModal('${dateIso}', '${sec.id}')" title="Add Cards">+</button>
+                                            <button class="no-bg-btn dots-icon" onclick="openSectionDrawer('${dateIso}', '${sec.id}')" title="Options">&#8942;</button>
+                                        </div>
+                                    </div>
+                                    ${!sec.collapsed ? `<div class="schedule-section-body">${cardsHtml}</div>` : ''}
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+
+                dateEl.innerHTML = `
+                    <div class="schedule-header-bar" onclick="toggleDateCollapse('${dateIso}')">
+                        <div class="schedule-header-left">
+                            <span>${dateData.collapsed ? '▶' : '▼'}</span>
+                            <span>${dateFormattedStr}</span>
+                        </div>
+                        <div class="schedule-header-actions" onclick="event.stopPropagation();">
+                            <button class="no-bg-btn plus-icon" onclick="openAddSectionModal('${dateIso}')" title="Add Section">+</button>
+                            <button class="no-bg-btn dots-icon" onclick="openDateDrawer('${dateIso}')" title="Options">&#8942;</button>
+                        </div>
+                    </div>
+                    ${!dateData.collapsed ? `<div class="schedule-date-body">${sectionsHtml}</div>` : ''}
+                `;
+
+                container.appendChild(dateEl);
+            });
+        }
+
+        function toggleDateCollapse(dateIso) {
+            if (appState.schedule[dateIso]) {
+                appState.schedule[dateIso].collapsed = !appState.schedule[dateIso].collapsed;
+                saveStateToStorage();
+                renderScheduleList();
+            }
+        }
+
+        function toggleSectionCollapse(dateIso, secId) {
+            if (appState.schedule[dateIso]) {
+                const sec = appState.schedule[dateIso].sections.find(s => s.id === secId);
+                if (sec) {
+                    sec.collapsed = !sec.collapsed;
+                    saveStateToStorage();
+                    renderScheduleList();
+                }
+            }
+        }
+
+        // --- DRAG AND DROP REORDERING ---
+        function handleCardDragStart(e, dateIso, secId, index) {
+            dragSourceDateIso = dateIso;
+            dragSourceSectionId = secId;
+            draggedCardIndex = index;
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleCardDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleCardDrop(e, targetDateIso, targetSecId, targetIndex) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (dragSourceDateIso === targetDateIso && dragSourceSectionId === targetSecId) {
+                const sec = appState.schedule[targetDateIso].sections.find(s => s.id === targetSecId);
+                if (sec && draggedCardIndex !== null && draggedCardIndex !== targetIndex) {
+                    const movedCard = sec.cards.splice(draggedCardIndex, 1)[0];
+                    sec.cards.splice(targetIndex, 0, movedCard);
+                    saveStateToStorage();
+                    renderScheduleList();
+                }
+            }
+            draggedCardIndex = null;
+            dragSourceDateIso = null;
+            dragSourceSectionId = null;
+        }
+
+        function removeCardFromSection(dateIso, secId, cardIndex) {
+            const sec = appState.schedule[dateIso]?.sections.find(s => s.id === secId);
+            if (sec) {
+                sec.cards.splice(cardIndex, 1);
+                saveStateToStorage();
+                renderScheduleList();
+            }
+        }
+
+        // --- BOTTOM DRAWER CONTEXT MENU ---
+        function openDateDrawer(dateIso) {
+            closeAllDrawers();
+            activeScheduleContext = { type: 'date', dateIso };
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            
+            document.getElementById('bottom-drawer-heading').textContent = formatDateDisplay(dateIso);
+
+            const optionsContainer = document.getElementById('bottom-drawer-options');
+            optionsContainer.innerHTML = `
+                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('import_tags')">${dict.opt_import_tags}</button>
+                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('copy_to_dates')">${dict.opt_copy_to_dates}</button>
+                <button class="bottom-drawer-btn" style="color:var(--error-color);" onclick="triggerDrawerOption('remove_date')">${dict.opt_remove}</button>
+            `;
+
+            document.getElementById('drawer-overlay').classList.add('active');
+            document.getElementById('bottom-drawer').classList.add('active');
+        }
+
+        function openSectionDrawer(dateIso, secId) {
+            closeAllDrawers();
+            activeScheduleContext = { type: 'section', dateIso, secId };
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            const sec = appState.schedule[dateIso]?.sections.find(s => s.id === secId);
+            
+            document.getElementById('bottom-drawer-heading').textContent = `${formatDateDisplay(dateIso)} > ${sec ? sec.name : ''}`;
+
+            const optionsContainer = document.getElementById('bottom-drawer-options');
+            optionsContainer.innerHTML = `
+                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('rename_section')">${dict.opt_rename}</button>
+                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('move_up_section')">${dict.opt_move_up}</button>
+                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('move_down_section')">${dict.opt_move_down}</button>
+                <button class="bottom-drawer-btn" style="color:var(--error-color);" onclick="triggerDrawerOption('remove_section')">${dict.opt_remove}</button>
+            `;
+
+            document.getElementById('drawer-overlay').classList.add('active');
+            document.getElementById('bottom-drawer').classList.add('active');
+        }
+
+        function triggerDrawerOption(actionKey) {
+            closeAllDrawers();
+            if (!activeScheduleContext) return;
+
+            const { dateIso, secId } = activeScheduleContext;
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+
+            if (actionKey === 'import_tags') {
+                openImportTagsModal(dateIso);
+            } else if (actionKey === 'copy_to_dates') {
+                openCopyToDatesModal(dateIso);
+            } else if (actionKey === 'remove_date') {
+                const formattedDate = formatDateDisplay(dateIso);
+                if (confirm(dict.prompt_remove_date.replace('{date}', formattedDate))) {
+                    delete appState.schedule[dateIso];
+                    saveStateToStorage();
+                    renderScheduleList();
+                }
+            } else if (actionKey === 'rename_section') {
+                openRenameSectionModal(dateIso, secId);
+            } else if (actionKey === 'move_up_section') {
+                moveSection(dateIso, secId, -1);
+            } else if (actionKey === 'move_down_section') {
+                moveSection(dateIso, secId, 1);
+            } else if (actionKey === 'remove_section') {
+                const sec = appState.schedule[dateIso]?.sections.find(s => s.id === secId);
+                const formattedDate = formatDateDisplay(dateIso);
+                if (confirm(dict.prompt_remove_section.replace('{date}', formattedDate).replace('{section}', sec ? sec.name : ''))) {
+                    appState.schedule[dateIso].sections = appState.schedule[dateIso].sections.filter(s => s.id !== secId);
+                    saveStateToStorage();
+                    renderScheduleList();
+                }
+            }
+        }
+
+        function moveSection(dateIso, secId, delta) {
+            const sections = appState.schedule[dateIso]?.sections;
+            if (!sections) return;
+            const idx = sections.findIndex(s => s.id === secId);
+            if (idx === -1) return;
+
+            const targetIdx = idx + delta;
+            if (targetIdx >= 0 && targetIdx < sections.length) {
+                const item = sections.splice(idx, 1)[0];
+                sections.splice(targetIdx, 0, item);
+                saveStateToStorage();
+                renderScheduleList();
+            }
+        }
+
+        // --- ADD/RENAME SECTION MODAL ---
+        function openAddSectionModal(dateIso) {
+            currentEditingDateIso = dateIso;
+            currentEditingSectionId = null;
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            document.getElementById('schedule-section-modal-heading').textContent = dict.modal_title_add_section;
+            document.getElementById('schedule-section-modal-subtext').textContent = `${dict.nav_schedule} > ${formatDateDisplay(dateIso)}`;
+            const nameInput = document.getElementById('schedule-section-name-input');
+            nameInput.value = '';
+            toggleInputClearBtn(nameInput);
+            openModal('schedule-section-modal');
+        }
+
+        function openRenameSectionModal(dateIso, secId) {
+            currentEditingDateIso = dateIso;
+            currentEditingSectionId = secId;
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            const sec = appState.schedule[dateIso]?.sections.find(s => s.id === secId);
+
+            document.getElementById('schedule-section-modal-heading').textContent = dict.modal_title_rename_section;
+            document.getElementById('schedule-section-modal-subtext').textContent = `${dict.nav_schedule} > ${formatDateDisplay(dateIso)}`;
+            const nameInput = document.getElementById('schedule-section-name-input');
+            nameInput.value = sec ? sec.name : '';
+            toggleInputClearBtn(nameInput);
+            openModal('schedule-section-modal');
+        }
+
+        function saveScheduleSectionName() {
+            const nameInput = document.getElementById('schedule-section-name-input');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            if (currentEditingSectionId) {
+                const sec = appState.schedule[currentEditingDateIso]?.sections.find(s => s.id === currentEditingSectionId);
+                if (sec) sec.name = name;
+            } else {
+                if (!appState.schedule[currentEditingDateIso]) {
+                    appState.schedule[currentEditingDateIso] = { collapsed: false, sections: [] };
+                }
+                const newSec = {
+                    id: 'sec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                    name,
+                    collapsed: false,
+                    cards: []
+                };
+                appState.schedule[currentEditingDateIso].sections.push(newSec);
+            }
+
+            closeModal('schedule-section-modal');
+            saveStateToStorage();
+            renderScheduleList();
+        }
+
+        // --- IMPORT TAGS AS SECTIONS MODAL ---
+        function openImportTagsModal(dateIso) {
+            currentEditingDateIso = dateIso;
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            document.getElementById('import-tags-modal-heading').textContent = dict.modal_title_import_tags;
+            document.getElementById('import-tags-modal-subtext').textContent = `${dict.nav_schedule} > ${formatDateDisplay(dateIso)}`;
+
+            const searchInput = document.getElementById('import-tag-search-input');
+            searchInput.value = '';
+            toggleInputClearBtn(searchInput);
+
+            renderImportTagList();
+            openModal('import-tags-modal');
+        }
+
+        function handleImportTagSearchInput(inputEl) {
+            toggleInputClearBtn(inputEl);
+            renderImportTagList();
+        }
+
+        function renderImportTagList() {
+            const container = document.getElementById('import-tag-list-container');
+            const query = document.getElementById('import-tag-search-input').value.toLowerCase();
+            container.innerHTML = '';
+
+            Object.keys(appState.tags).forEach(key => {
+                const tag = appState.tags[key];
+                const matchesKey = key.toLowerCase().includes(query);
+                const matchesVal = tag.values.some(v => v.toLowerCase().includes(query));
+
+                if (!query || matchesKey || matchesVal) {
+                    const card = document.createElement('div');
+                    card.className = 'item-card';
+                    card.onclick = () => importTagAsSection(key);
+
+                    card.innerHTML = `
+                        <div class="item-card-header">
+                            <span class="item-card-title">${key}</span>
+                        </div>
+                        <div class="item-card-tags">
+                            ${tag.values.map(v => `<span class="tag-badge">${v}</span>`).join('')}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            });
+        }
+
+        function importTagAsSection(tagKey) {
+            const tagDef = appState.tags[tagKey];
+            if (!tagDef) return;
+
+            if (!appState.schedule[currentEditingDateIso]) {
+                appState.schedule[currentEditingDateIso] = { collapsed: false, sections: [] };
+            }
+
+            const targetDate = appState.schedule[currentEditingDateIso];
+
+            tagDef.values.forEach(val => {
+                const sectionName = val;
+                const existingSec = targetDate.sections.find(s => s.name === sectionName);
+                if (!existingSec) {
+                    targetDate.sections.push({
+                        id: 'sec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                        name: sectionName,
+                        collapsed: false,
+                        cards: []
+                    });
+                }
+            });
+
+            closeModal('import-tags-modal');
+            saveStateToStorage();
+            renderScheduleList();
+        }
+
+        // --- COPY TO DATES MODAL ---
+        function openCopyToDatesModal(sourceDateIso) {
+            currentEditingDateIso = sourceDateIso;
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            document.getElementById('copy-dates-modal-heading').textContent = dict.modal_title_copy_to_dates;
+            document.getElementById('copy-dates-modal-subtext').textContent = `${dict.nav_schedule} > ${formatDateDisplay(sourceDateIso)}`;
+
+            document.getElementById('copy-start-date').value = sourceDateIso;
+            document.getElementById('copy-end-date').value = sourceDateIso;
+            document.getElementById('copy-include-cards').checked = true;
+
+            openModal('copy-dates-modal');
+        }
+
+        function onCopyStartDateChange() {
+            const start = document.getElementById('copy-start-date').value;
+            const end = document.getElementById('copy-end-date').value;
+            if (start && end && start > end) {
+                document.getElementById('copy-end-date').value = start;
+            }
+        }
+
+        function onCopyEndDateChange() {
+            const start = document.getElementById('copy-start-date').value;
+            const end = document.getElementById('copy-end-date').value;
+            if (start && end && end < start) {
+                document.getElementById('copy-start-date').value = end;
+            }
+        }
+
+        function proceedCopyToDates() {
+            const startDateIso = document.getElementById('copy-start-date').value;
+            const endDateIso = document.getElementById('copy-end-date').value;
+            const includeCards = document.getElementById('copy-include-cards').checked;
+
+            if (!startDateIso || !endDateIso) return;
+
+            const datesToProcess = [];
+            let curr = new Date(startDateIso + 'T00:00:00');
+            const end = new Date(endDateIso + 'T00:00:00');
+
+            while (curr <= end) {
+                const yyyy = curr.getFullYear();
+                const mm = String(curr.getMonth() + 1).padStart(2, '0');
+                const dd = String(curr.getDate()).padStart(2, '0');
+                const isoStr = `${yyyy}-${mm}-${dd}`;
+                
+                if (isoStr !== currentEditingDateIso) {
+                    datesToProcess.push(isoStr);
+                }
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            const existingDates = datesToProcess.filter(d => !!appState.schedule[d]);
+
+            copyPendingConfig = {
+                sourceDateIso: currentEditingDateIso,
+                targetDates: datesToProcess,
+                includeCards
+            };
+
+            closeModal('copy-dates-modal');
+
+            if (existingDates.length > 0) {
+                openOverwritePromptModal(existingDates);
+            } else {
+                executeScheduleCopy(datesToProcess);
+            }
+        }
+
+        function openOverwritePromptModal(existingDates) {
+            const container = document.getElementById('overwrite-dates-list');
+            container.innerHTML = existingDates.map(dateIso => `
+                <label class="checkbox-row-item">
+                    <input type="checkbox" class="overwrite-date-checkbox" value="${dateIso}" checked onchange="updateSelectAllState()">
+                    <span>${formatDateDisplay(dateIso)}</span>
+                </label>
+            `).join('');
+
+            document.getElementById('overwrite-select-all').checked = true;
+            openModal('copy-overwrite-modal');
+        }
+
+        function toggleOverwriteSelectAll(selectAllCheckbox) {
+            document.querySelectorAll('.overwrite-date-checkbox').forEach(cb => {
+                cb.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        function updateSelectAllState() {
+            const all = document.querySelectorAll('.overwrite-date-checkbox');
+            const checked = document.querySelectorAll('.overwrite-date-checkbox:checked');
+            document.getElementById('overwrite-select-all').checked = (all.length > 0 && all.length === checked.length);
+        }
+
+        function confirmOverwriteAndCopy() {
+            const selectedOverwrites = Array.from(document.querySelectorAll('.overwrite-date-checkbox:checked')).map(cb => cb.value);
+            closeModal('copy-overwrite-modal');
+
+            if (!copyPendingConfig) return;
+
+            const finalTargetDates = copyPendingConfig.targetDates.filter(d => {
+                const exists = !!appState.schedule[d];
+                if (!exists) return true;
+                return selectedOverwrites.includes(d);
+            });
+
+            executeScheduleCopy(finalTargetDates);
+        }
+
+        function executeScheduleCopy(targetDates) {
+            if (!copyPendingConfig) return;
+
+            const sourceData = appState.schedule[copyPendingConfig.sourceDateIso];
+            if (!sourceData) return;
+
+            targetDates.forEach(dateIso => {
+                const clonedSections = sourceData.sections.map(sec => ({
+                    id: 'sec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                    name: sec.name,
+                    collapsed: sec.collapsed,
+                    cards: copyPendingConfig.includeCards ? [...sec.cards] : []
+                }));
+
+                appState.schedule[dateIso] = {
+                    collapsed: false,
+                    sections: clonedSections
+                };
+            });
+
+            copyPendingConfig = null;
+            saveStateToStorage();
+            renderScheduleList();
+        }
+
+        // --- ADD CARDS TO SECTION MODAL ---
+        function openAddCardsToSectionModal(dateIso, secId) {
+            currentEditingDateIso = dateIso;
+            currentEditingSectionId = secId;
+
+            const dict = i18nData[appState.defaults.language] || i18nData.english;
+            const sec = appState.schedule[dateIso]?.sections.find(s => s.id === secId);
+
+            document.getElementById('add-cards-modal-heading').textContent = dict.modal_title_add_cards;
+            document.getElementById('add-cards-modal-subtext').textContent = `${dict.nav_schedule} > ${formatDateDisplay(dateIso)} > ${sec ? sec.name : ''}`;
+
+            const searchInput = document.getElementById('add-cards-search-text');
+            searchInput.value = '';
+            toggleInputClearBtn(searchInput);
+
+            addCardsSelectedIds = sec ? [...sec.cards] : [];
+            addCardsAppliedFilters = {};
+
+            updateAddCardsFilterButtonUI();
+            renderAddCardsChecklist();
+            openModal('add-cards-modal');
+        }
+
+        function handleAddCardsSearchInput(inputEl) {
+            toggleInputClearBtn(inputEl);
+            renderAddCardsChecklist();
+        }
+
+        function toggleAddCardsSelection(cardId) {
+            if (addCardsSelectedIds.includes(cardId)) {
+                addCardsSelectedIds = addCardsSelectedIds.filter(id => id !== cardId);
+            } else {
+                addCardsSelectedIds.push(cardId);
+            }
+            renderAddCardsChecklist();
+        }
+
+        function getFilteredCardsForAddModal() {
+            const query = document.getElementById('add-cards-search-text').value.toLowerCase();
+
+            return appState.cards.filter(card => {
+                const matchesText = card.name.toLowerCase().includes(query);
+                if (!matchesText) return false;
+
+                const filterKeys = Object.keys(addCardsAppliedFilters);
+                for (let key of filterKeys) {
+                    const allowedVals = addCardsAppliedFilters[key];
+                    if (!allowedVals || allowedVals.length === 0) continue;
+
+                    const cardVals = card.tags ? (card.tags[key] || []) : [];
+                    const hasMatch = cardVals.some(v => allowedVals.includes(v));
+                    if (!hasMatch) return false;
+                }
+
+                return true;
+            });
+        }
+
+        function renderAddCardsChecklist() {
+            updateAddCardsFilterButtonUI();
+            const container = document.getElementById('add-cards-checklist');
+            const filtered = getFilteredCardsForAddModal();
+            container.innerHTML = '';
+
+            filtered.sort((a, b) => {
+                const aSelected = addCardsSelectedIds.includes(a.id);
+                const bSelected = addCardsSelectedIds.includes(b.id);
+                if (aSelected && !bSelected) return -1;
+                if (!aSelected && bSelected) return 1;
+                return 0;
+            });
+
+            filtered.forEach(card => {
+                const isSelected = addCardsSelectedIds.includes(card.id);
+                const row = document.createElement('div');
+                row.className = `card-checkbox-item ${isSelected ? 'selected' : ''}`;
+                row.id = `add-card-elem-${card.id}`;
+                row.onclick = () => toggleAddCardsSelection(card.id);
+
+                row.innerHTML = `
+                    <div class="card-checkbox-left">
+                        <input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleAddCardsSelection('${card.id}')">
+                        <span style="font-weight: 500; font-size: 14px;">${card.name}</span>
+                    </div>
+                    <button class="info-btn-circle" onclick="event.stopPropagation(); openCardInfoModal('${card.id}')" title="Card Info">i</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function openAddCardsFilterModal() {
+            addCardsFilterBuffer = JSON.parse(JSON.stringify(addCardsAppliedFilters));
+            populateAddCardsFilterKeyDropdown();
+            renderAddCardsFilterBufferCloud();
+            openModal('add-cards-filter-modal');
+        }
+
+        function populateAddCardsFilterKeyDropdown() {
+            const select = document.getElementById('add-cards-filter-tag-key-select');
+            select.innerHTML = `<option value="">${(i18nData[appState.defaults.language]||i18nData.english).select_tag_key}</option>`;
+            Object.keys(appState.tags).forEach(key => {
+                select.innerHTML += `<option value="${key}">${key}</option>`;
+            });
+            document.getElementById('add-cards-filter-tag-values-box').classList.add('hidden');
+            addCardsSelectingKey = null;
+            addCardsSelectingValues = [];
+        }
+
+        function onAddCardsFilterKeyChange() {
+            const key = document.getElementById('add-cards-filter-tag-key-select').value;
+            const box = document.getElementById('add-cards-filter-tag-values-box');
+            if (!key) {
+                box.classList.add('hidden');
+                addCardsSelectingKey = null;
+                addCardsSelectingValues = [];
+                renderAddCardsFilterBufferCloud();
+                return;
+            }
+
+            addCardsSelectingKey = key;
+            addCardsSelectingValues = addCardsFilterBuffer[key] ? [...addCardsFilterBuffer[key]] : [];
+            box.classList.remove('hidden');
+            renderAddCardsFilterTagValuesDisplay();
+            renderAddCardsFilterBufferCloud();
+        }
+
+        function renderAddCardsFilterTagValuesDisplay() {
+            const key = addCardsSelectingKey;
+            if (!key || !appState.tags[key]) return;
+
+            const tagDef = appState.tags[key];
+            const cloud = document.getElementById('add-cards-filter-tag-values-cloud');
+
+            cloud.innerHTML = tagDef.values.map(v => {
+                const isSelected = addCardsSelectingValues.includes(v);
+                return `<span class="chip chip-selectable ${isSelected ? 'selected' : ''}" onclick="toggleAddCardsFilterValueSelection('${v}')">${v}</span>`;
+            }).join('');
+        }
+
+        function toggleAddCardsFilterValueSelection(val) {
+            if (addCardsSelectingValues.includes(val)) {
+                addCardsSelectingValues = addCardsSelectingValues.filter(v => v !== val);
+            } else {
+                addCardsSelectingValues.push(val);
+            }
+            renderAddCardsFilterTagValuesDisplay();
+        }
+
+        function addCardsFilterToBuffer() {
+            if (addCardsSelectingKey) {
+                if (addCardsSelectingValues.length > 0) {
+                    addCardsFilterBuffer[addCardsSelectingKey] = [...addCardsSelectingValues];
+                } else {
+                    delete addCardsFilterBuffer[addCardsSelectingKey];
+                }
+            }
+
+            addCardsSelectingKey = null;
+            addCardsSelectingValues = [];
+            document.getElementById('add-cards-filter-tag-key-select').value = '';
+            document.getElementById('add-cards-filter-tag-values-box').classList.add('hidden');
+            renderAddCardsFilterBufferCloud();
+        }
+
+        function removeAddCardsFilterKeyFromBuffer(key) {
+            delete addCardsFilterBuffer[key];
+            if (addCardsSelectingKey === key) {
+                addCardsSelectingKey = null;
+                addCardsSelectingValues = [];
+                document.getElementById('add-cards-filter-tag-key-select').value = '';
+                document.getElementById('add-cards-filter-tag-values-box').classList.add('hidden');
+            }
+            renderAddCardsFilterBufferCloud();
+        }
+
+        function editAddCardsFilterTagKey(key) {
+            document.getElementById('add-cards-filter-tag-key-select').value = key;
+            onAddCardsFilterKeyChange();
+        }
+
+        function renderAddCardsFilterBufferCloud() {
+            const container = document.getElementById('add-cards-active-filters-cloud');
+            container.innerHTML = Object.keys(addCardsFilterBuffer).map(key => {
+                if (!addCardsFilterBuffer[key] || addCardsFilterBuffer[key].length === 0) return '';
+                const isCurrentlySelected = (key === addCardsSelectingKey);
+                return `
+                    <span class="chip ${isCurrentlySelected ? 'active-editing' : ''}" onclick="editAddCardsFilterTagKey('${key}')" style="cursor:pointer;">
+                        <strong>${key}:</strong> ${addCardsFilterBuffer[key].join(', ')}
+                        <span class="remove-btn" onclick="event.stopPropagation(); removeAddCardsFilterKeyFromBuffer('${key}')">&times;</span>
+                    </span>
+                `;
+            }).join('');
+        }
+
+        function clearAllAddCardsFilters() {
+            addCardsFilterBuffer = {};
+            addCardsSelectingKey = null;
+            addCardsSelectingValues = [];
+            document.getElementById('add-cards-filter-tag-key-select').value = '';
+            document.getElementById('add-cards-filter-tag-values-box').classList.add('hidden');
+            renderAddCardsFilterBufferCloud();
+        }
+
+        function applyAddCardsFilters() {
+            addCardsAppliedFilters = JSON.parse(JSON.stringify(addCardsFilterBuffer));
+            closeModal('add-cards-filter-modal');
+            renderAddCardsChecklist();
+        }
+
+        function updateAddCardsFilterButtonUI() {
+            const baseText = (i18nData[appState.defaults.language] || i18nData.english).btn_filter;
+            let totalCount = 0;
+            Object.keys(addCardsAppliedFilters).forEach(key => {
+                if (addCardsAppliedFilters[key] && Array.isArray(addCardsAppliedFilters[key])) {
+                    totalCount += addCardsAppliedFilters[key].length;
+                }
+            });
+
+            const btnTextEl = document.getElementById('add-cards-filter-btn-text');
+            if (totalCount > 0) {
+                btnTextEl.textContent = `${baseText} (${totalCount})`;
+            } else {
+                btnTextEl.textContent = baseText;
+            }
+        }
+
+        function triggerAddCardsSurpriseMe() {
+            const filtered = getFilteredCardsForAddModal();
+            if (filtered.length === 0) return;
+
+            const randomCard = filtered[Math.floor(Math.random() * filtered.length)];
+            const el = document.getElementById(`add-card-elem-${randomCard.id}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('highlighted');
+                setTimeout(() => {
+                    el.classList.remove('highlighted');
+                }, 2000);
+            }
+        }
+
+        function saveAddCardsToSection() {
+            const sec = appState.schedule[currentEditingDateIso]?.sections.find(s => s.id === currentEditingSectionId);
+            if (sec) {
+                sec.cards = [...addCardsSelectedIds];
+                saveStateToStorage();
+                renderScheduleList();
+            }
+            closeModal('add-cards-modal');
+        }
+
+        // --- CARD INFO DISPLAY OVERLAY ---
+        function openCardInfoModal(cardId) {
+            const card = appState.cards.find(c => c.id === cardId);
+            if (!card) return;
+
+            document.getElementById('card-info-title').textContent = card.name;
+            document.getElementById('card-info-desc').textContent = card.desc || '';
+
+            const tagsContainer = document.getElementById('card-info-tags');
+            tagsContainer.innerHTML = card.tags ? Object.keys(card.tags).map(k => `
+                <span class="tag-badge"><strong>${k}:</strong> ${card.tags[k].join(', ')}</span>
+            `).join('') : '';
+
+            openModal('card-info-modal');
+        }
+
+        // --- EXPORT / IMPORT STATE MANAGEMENT ---
+        function openDownloadModal() {
+            document.getElementById('download-json-area').value = JSON.stringify(appState, null, 2);
+            closeAllDrawers();
+            openModal('download-modal');
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('download-json-area').value;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast((i18nData[appState.defaults.language]||i18nData.english).msg_copied);
+            });
+        }
+
+        function downloadStateFile() {
+            const text = document.getElementById('download-json-area').value;
+            const blob = new Blob([text], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `card_manager_state_${getTodayIso()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function openUploadModal() {
+            document.getElementById('upload-json-area').value = '';
+            closeAllDrawers();
+            openModal('upload-modal');
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(evt) {
-                document.getElementById('upload-json-area').value = evt.target.result;
+            reader.onload = (e) => {
+                document.getElementById('upload-json-area').value = e.target.result;
             };
             reader.readAsText(file);
         }
 
         function applyUploadedState() {
-            const jsonText = document.getElementById('upload-json-area').value;
+            const raw = document.getElementById('upload-json-area').value.trim();
+            if (!raw) return;
+
             try {
-                const parsed = JSON.parse(jsonText);
+                const parsed = JSON.parse(raw);
                 if (typeof parsed === 'object' && parsed !== null) {
                     appState = parsed;
                     if (!appState.defaults) appState.defaults = { language: "english", currentView: "cards" };
                     if (!appState.tags) appState.tags = {};
                     if (!appState.cards) appState.cards = [];
-                    Object.keys(appState.tags).forEach(k => {
-                        appState.tags[k].type = 'multi';
-                    });
+                    if (!appState.schedule) appState.schedule = {};
 
                     saveStateToStorage();
                     applyLanguage();
                     applyTheme();
-                    closeModal('upload-modal');
                     switchView(appState.defaults.currentView || "cards");
+                    closeModal('upload-modal');
                 } else {
-                    throw new Error();
+                    alert((i18nData[appState.defaults.language]||i18nData.english).msg_invalid_json);
                 }
             } catch(e) {
                 alert((i18nData[appState.defaults.language]||i18nData.english).msg_invalid_json);
