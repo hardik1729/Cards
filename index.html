@@ -1024,11 +1024,11 @@
             <div class="sticky-controls" id="schedule-sticky-header">
                 <div class="schedule-top-bar">
                     <div class="schedule-date-selector-box">
-                        <button class="arrow-nav-btn" onclick="shiftTopScheduleDate(-1)">&lt;</button>
+                        <button class="arrow-nav-btn" onclick="shiftTopScheduleDate(-1)">&#9650;</button>
                         <input type="date" id="top-schedule-date-picker" class="schedule-date-input" onchange="onTopDateInputChange()">
-                        <button class="arrow-nav-btn" onclick="shiftTopScheduleDate(1)">&gt;</button>
+                        <button class="arrow-nav-btn" onclick="shiftTopScheduleDate(1)">&#9660;</button>
                     </div>
-                    <button class="btn btn-primary plus-btn" onclick="onTopAddScheduleDateBtnPressed()" title="Add Schedule Date">+</button>
+                    <button class="btn btn-primary plus-btn" id="top-schedule-date-action-btn" onclick="onTopAddScheduleDateBtnPressed()" title="Add Schedule Date">+</button>
                 </div>
             </div>
 
@@ -1064,8 +1064,8 @@
                     <label data-i18n="lbl_tag_values">Add Tag Values</label>
                     <div class="form-row">
                         <div class="input-clear-wrapper">
-                            <input type="text" id="tag-value-input" placeholder="e.g. High" oninput="toggleInputClearBtn(this)" data-i18n-ph="ph_tag_value">
-                            <button class="clear-input-btn" onclick="clearWrapperInput(this)">&times;</button>
+                            <input type="text" id="tag-value-input" placeholder="e.g. High" oninput="toggleInputClearBtn(this); handleTagValueInputLive();" data-i18n-ph="ph_tag_value">
+                            <button class="clear-input-btn" onclick="clearWrapperInput(this); handleTagValueInputLive();">&times;</button>
                         </div>
                         <button class="btn btn-primary plus-btn" id="tag-val-submit-btn" onclick="addValueToTagBuffer()">+</button>
                     </div>
@@ -1107,8 +1107,14 @@
                 </div>
 
                 <div id="card-tag-values-box" class="tag-selector-box hidden">
+                    <div class="form-row" style="margin-bottom: 8px;">
+                        <div class="input-clear-wrapper">
+                            <input type="text" id="card-tag-new-value-input" placeholder="Add new value..." oninput="toggleInputClearBtn(this); handleCardTagNewValueInputLive();" data-i18n-ph="ph_add_new_value">
+                            <button class="clear-input-btn" onclick="clearWrapperInput(this); handleCardTagNewValueInputLive();">&times;</button>
+                        </div>
+                        <button class="btn btn-primary plus-btn" id="card-tag-val-submit-btn" onclick="addNewValueToCardTagKey()">+</button>
+                    </div>
                     <div id="card-tag-values-cloud" class="tag-values-cloud"></div>
-                    <button class="btn btn-primary" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="addTagToCardBuffer()" data-i18n="btn_add_tag">Add Tag</button>
                 </div>
 
                 <div id="card-selected-tags-cloud" class="tag-values-cloud" style="margin-top: 10px;"></div>
@@ -1137,7 +1143,6 @@
 
                 <div id="filter-tag-values-box" class="tag-selector-box hidden">
                     <div id="filter-tag-values-cloud" class="tag-values-cloud"></div>
-                    <button class="btn btn-primary" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="addFilterToBuffer()" data-i18n="btn_add_filter">Add Tag Filter</button>
                 </div>
 
                 <div id="active-filters-cloud" class="tag-values-cloud" style="margin-top: 12px;"></div>
@@ -1303,7 +1308,6 @@
 
                 <div id="add-cards-filter-tag-values-box" class="tag-selector-box hidden">
                     <div id="add-cards-filter-tag-values-cloud" class="tag-values-cloud"></div>
-                    <button class="btn btn-primary" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="addCardsFilterToBuffer()" data-i18n="btn_add_filter">Add Tag Filter</button>
                 </div>
 
                 <div id="add-cards-active-filters-cloud" class="tag-values-cloud" style="margin-top: 12px;"></div>
@@ -1317,18 +1321,7 @@
 
     <!-- CARD FULL DETAIL DISPLAY OVERLAY -->
     <div id="card-info-modal" class="modal-overlay" style="z-index: 500;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="card-info-title">Card Details</h3>
-                <button class="icon-btn close-btn" onclick="closeModal('card-info-modal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="card-info-desc" class="item-card-desc"></div>
-                <div id="card-info-tags" class="item-card-tags"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn" onclick="closeModal('card-info-modal')" data-i18n="btn_close">Close</button>
-            </div>
+        <div id="card-info-content-container" style="width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto;">
         </div>
     </div>
 
@@ -1417,6 +1410,7 @@
                 btn_surprise_me: "Surprise Me",
                 btn_filter: "Filter",
                 ph_search_cards: "Search cards by name...",
+                ph_add_new_value: "Add new value...",
                 title_create_card: "Create Card",
                 title_edit_card: "Edit Card",
                 lbl_card_name: "Card Name *",
@@ -1501,6 +1495,7 @@
                 btn_surprise_me: "सरप्राइज मी",
                 btn_filter: "फ़िल्टर",
                 ph_search_cards: "नाम से कार्ड खोजें...",
+                ph_add_new_value: "नया मान जोड़ें...",
                 title_create_card: "कार्ड बनाएं",
                 title_edit_card: "कार्ड संपादित करें",
                 lbl_card_name: "कार्ड का नाम *",
@@ -1744,7 +1739,10 @@
 
             if (viewName === 'cards') renderCards();
             if (viewName === 'tags') renderTagsList();
-            if (viewName === 'schedule') renderScheduleList();
+            if (viewName === 'schedule') {
+                updateTopScheduleDateActionButtonUI();
+                renderScheduleList();
+            }
 
             saveStateToStorage();
         }
@@ -1840,7 +1838,8 @@
                 if (dict[key]) el.placeholder = dict[key];
             });
 
-            updateTagValSubmitBtnLabel();
+            handleTagValueInputLive();
+            handleCardTagNewValueInputLive();
         }
 
         function changeThemeMode(mode) {
@@ -1886,7 +1885,7 @@
             document.getElementById('tag-modal-heading').textContent = dict.title_create_tag;
             document.getElementById('tag-save-btn').textContent = dict.btn_save;
 
-            updateTagValSubmitBtnLabel();
+            handleTagValueInputLive();
             renderTagBufferCloud();
             openModal('tag-modal');
         }
@@ -1910,15 +1909,19 @@
             document.getElementById('tag-modal-heading').textContent = dict.title_edit_tag;
             document.getElementById('tag-save-btn').textContent = dict.btn_update;
 
-            updateTagValSubmitBtnLabel();
+            handleTagValueInputLive();
             renderTagBufferCloud();
             openModal('tag-modal');
         }
 
-        function updateTagValSubmitBtnLabel() {
+        function handleTagValueInputLive() {
             const btn = document.getElementById('tag-val-submit-btn');
             if (!btn) return;
-            btn.textContent = "+";
+            if (editingValueIndex !== null && editingValueIndex >= 0) {
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+            } else {
+                btn.textContent = "+";
+            }
         }
 
         function selectValueForEdit(index) {
@@ -1928,7 +1931,7 @@
                 valInput.value = tagBufferValues[index];
                 toggleInputClearBtn(valInput);
                 valInput.focus();
-                updateTagValSubmitBtnLabel();
+                handleTagValueInputLive();
                 renderTagBufferCloud();
             }
         }
@@ -1944,7 +1947,7 @@
             } else if (!tagBufferValues.includes(val)) {
                 tagBufferValues.push(val);
             }
-            updateTagValSubmitBtnLabel();
+            handleTagValueInputLive();
             renderTagBufferCloud();
             valInput.value = '';
             toggleInputClearBtn(valInput);
@@ -1963,7 +1966,7 @@
                     editingValueIndex--;
                 }
             }
-            updateTagValSubmitBtnLabel();
+            handleTagValueInputLive();
             renderTagBufferCloud();
         }
 
@@ -2054,7 +2057,7 @@
             valInput.value = '';
             toggleInputClearBtn(keyInput);
             toggleInputClearBtn(valInput);
-            updateTagValSubmitBtnLabel();
+            handleTagValueInputLive();
             renderTagBufferCloud();
         }
 
@@ -2107,7 +2110,7 @@
             initialCardState = {
                 name: document.getElementById('search-card-text').value.trim(),
                 desc: '',
-                tags: {}
+                tags: JSON.parse(JSON.stringify(appliedFilters || {}))
             };
 
             const nameInput = document.getElementById('card-name-input');
@@ -2115,7 +2118,7 @@
             toggleInputClearBtn(nameInput);
 
             document.getElementById('card-desc-input').value = '';
-            cardBufferTags = {};
+            cardBufferTags = JSON.parse(JSON.stringify(initialCardState.tags));
 
             const dict = i18nData[appState.defaults.language] || i18nData.english;
             document.getElementById('card-modal-heading').textContent = dict.title_create_card;
@@ -2161,8 +2164,46 @@
             currentSelectingCardKey = key;
             currentSelectingCardValues = cardBufferTags[key] ? [...cardBufferTags[key]] : [];
             box.classList.remove('hidden');
+            
+            const newInput = document.getElementById('card-tag-new-value-input');
+            if (newInput) {
+                newInput.value = '';
+                toggleInputClearBtn(newInput);
+            }
+            handleCardTagNewValueInputLive();
+
             renderCardTagValuesDisplay();
             renderCardBufferTagsCloud();
+        }
+
+        function handleCardTagNewValueInputLive() {
+            const btn = document.getElementById('card-tag-val-submit-btn');
+            if (!btn) return;
+            btn.textContent = "+";
+        }
+
+        function addNewValueToCardTagKey() {
+            const newInput = document.getElementById('card-tag-new-value-input');
+            if (!newInput || !currentSelectingCardKey) return;
+            const val = newInput.value.trim();
+            if (!val) return;
+
+            if (!appState.tags[currentSelectingCardKey]) {
+                appState.tags[currentSelectingCardKey] = { type: 'multi', values: [] };
+            }
+            if (!appState.tags[currentSelectingCardKey].values.includes(val)) {
+                appState.tags[currentSelectingCardKey].values.push(val);
+                saveStateToStorage();
+            }
+
+            if (!currentSelectingCardValues.includes(val)) {
+                currentSelectingCardValues.push(val);
+            }
+
+            newInput.value = '';
+            toggleInputClearBtn(newInput);
+            updateCardTagBufferFromSelection();
+            renderCardTagValuesDisplay();
         }
 
         function renderCardTagValuesDisplay() {
@@ -2185,10 +2226,11 @@
             } else {
                 currentSelectingCardValues.push(val);
             }
+            updateCardTagBufferFromSelection();
             renderCardTagValuesDisplay();
         }
 
-        function addTagToCardBuffer() {
+        function updateCardTagBufferFromSelection() {
             if (currentSelectingCardKey) {
                 if (currentSelectingCardValues.length > 0) {
                     cardBufferTags[currentSelectingCardKey] = [...currentSelectingCardValues];
@@ -2196,12 +2238,9 @@
                     delete cardBufferTags[currentSelectingCardKey];
                 }
             }
-
-            currentSelectingCardKey = null;
-            currentSelectingCardValues = [];
-            document.getElementById('card-tag-key-select').value = '';
-            document.getElementById('card-tag-values-box').classList.add('hidden');
             renderCardBufferTagsCloud();
+            if (appState.defaults.currentView === 'cards') renderCards();
+            if (appState.defaults.currentView === 'schedule') renderScheduleList();
         }
 
         function removeKeyFromCardBuffer(key) {
@@ -2213,6 +2252,8 @@
                 document.getElementById('card-tag-values-box').classList.add('hidden');
             }
             renderCardBufferTagsCloud();
+            if (appState.defaults.currentView === 'cards') renderCards();
+            if (appState.defaults.currentView === 'schedule') renderScheduleList();
         }
 
         function renderCardBufferTagsCloud() {
@@ -2365,10 +2406,11 @@
             } else {
                 currentSelectingFilterValues.push(val);
             }
+            updateFilterBufferFromSelection();
             renderFilterTagValuesDisplay();
         }
 
-        function addFilterToBuffer() {
+        function updateFilterBufferFromSelection() {
             if (currentSelectingFilterKey) {
                 if (currentSelectingFilterValues.length > 0) {
                     filterBufferTags[currentSelectingFilterKey] = [...currentSelectingFilterValues];
@@ -2376,11 +2418,6 @@
                     delete filterBufferTags[currentSelectingFilterKey];
                 }
             }
-
-            currentSelectingFilterKey = null;
-            currentSelectingFilterValues = [];
-            document.getElementById('filter-tag-key-select').value = '';
-            document.getElementById('filter-tag-values-box').classList.add('hidden');
             renderFilterBufferTagsCloud();
         }
 
@@ -2469,6 +2506,23 @@
             });
         }
 
+        function buildCardElementHtml(card, isModalView = false) {
+            const tagsHtml = card.tags ? Object.keys(card.tags).map(k => `
+                <span class="tag-badge"><strong>${k}:</strong> ${card.tags[k].join(', ')}</span>
+            `).join('') : '';
+
+            const removeBtnOnClick = isModalView ? `closeModal('card-info-modal')` : `deleteCard('${card.id}')`;
+
+            return `
+                <div class="item-card-header">
+                    <span class="item-card-title">${card.name}</span>
+                    <button class="icon-btn remove-btn" onclick="event.stopPropagation(); ${removeBtnOnClick}">&times;</button>
+                </div>
+                ${card.desc ? `<div class="item-card-desc">${card.desc}</div>` : ''}
+                <div class="item-card-tags">${tagsHtml}</div>
+            `;
+        }
+
         function renderCards() {
             updateFilterButtonUI();
             const container = document.getElementById('cards-list');
@@ -2483,18 +2537,7 @@
                     if (!e.target.classList.contains('remove-btn')) editCard(card.id);
                 };
 
-                const tagsHtml = card.tags ? Object.keys(card.tags).map(k => `
-                    <span class="tag-badge"><strong>${k}:</strong> ${card.tags[k].join(', ')}</span>
-                `).join('') : '';
-
-                cardEl.innerHTML = `
-                    <div class="item-card-header">
-                        <span class="item-card-title">${card.name}</span>
-                        <button class="icon-btn remove-btn" onclick="deleteCard('${card.id}')">&times;</button>
-                    </div>
-                    ${card.desc ? `<div class="item-card-desc">${card.desc}</div>` : ''}
-                    <div class="item-card-tags">${tagsHtml}</div>
-                `;
+                cardEl.innerHTML = buildCardElementHtml(card, false);
                 container.appendChild(cardEl);
             });
         }
@@ -2518,6 +2561,7 @@
         function initTopScheduleDateBox() {
             const picker = document.getElementById('top-schedule-date-picker');
             picker.value = getTodayIso();
+            updateTopScheduleDateActionButtonUI();
         }
 
         function shiftTopScheduleDate(days) {
@@ -2532,11 +2576,30 @@
             const dd = String(dateObj.getDate()).padStart(2, '0');
             picker.value = `${yyyy}-${mm}-${dd}`;
 
+            updateTopScheduleDateActionButtonUI();
             handleTopDateSelectionUpdated(false);
         }
 
         function onTopDateInputChange() {
+            updateTopScheduleDateActionButtonUI();
             handleTopDateSelectionUpdated(false);
+        }
+
+        function updateTopScheduleDateActionButtonUI() {
+            const picker = document.getElementById('top-schedule-date-picker');
+            const btn = document.getElementById('top-schedule-date-action-btn');
+            if (!picker || !btn) return;
+
+            const selectedDateIso = picker.value || getTodayIso();
+            const exists = !!appState.schedule[selectedDateIso];
+
+            if (exists) {
+                btn.title = "Recenter Schedule";
+                btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line></svg>`;
+            } else {
+                btn.title = "Add Schedule Date";
+                btn.textContent = "+";
+            }
         }
 
         function onTopAddScheduleDateBtnPressed() {
@@ -2553,6 +2616,7 @@
                     appState.schedule[selectedDateIso] = { collapsed: false, sections: [] };
                     saveStateToStorage();
                 }
+                updateTopScheduleDateActionButtonUI();
                 renderScheduleList();
                 scrollToAndHighlightScheduleDate(selectedDateIso);
                 return;
@@ -2600,6 +2664,7 @@
         }
 
         function renderScheduleList() {
+            updateTopScheduleDateActionButtonUI();
             const container = document.getElementById('schedule-list');
             container.innerHTML = '';
 
@@ -3237,10 +3302,11 @@
             } else {
                 addCardsSelectingValues.push(val);
             }
+            updateAddCardsFilterBufferFromSelection();
             renderAddCardsFilterTagValuesDisplay();
         }
 
-        function addCardsFilterToBuffer() {
+        function updateAddCardsFilterBufferFromSelection() {
             if (addCardsSelectingKey) {
                 if (addCardsSelectingValues.length > 0) {
                     addCardsFilterBuffer[addCardsSelectingKey] = [...addCardsSelectingValues];
@@ -3248,11 +3314,6 @@
                     delete addCardsFilterBuffer[addCardsSelectingKey];
                 }
             }
-
-            addCardsSelectingKey = null;
-            addCardsSelectingValues = [];
-            document.getElementById('add-cards-filter-tag-key-select').value = '';
-            document.getElementById('add-cards-filter-tag-values-box').classList.add('hidden');
             renderAddCardsFilterBufferCloud();
         }
 
@@ -3348,13 +3409,12 @@
             const card = appState.cards.find(c => c.id === cardId);
             if (!card) return;
 
-            document.getElementById('card-info-title').textContent = card.name;
-            document.getElementById('card-info-desc').textContent = card.desc || '';
-
-            const tagsContainer = document.getElementById('card-info-tags');
-            tagsContainer.innerHTML = card.tags ? Object.keys(card.tags).map(k => `
-                <span class="tag-badge"><strong>${k}:</strong> ${card.tags[k].join(', ')}</span>
-            `).join('') : '';
+            const container = document.getElementById('card-info-content-container');
+            container.innerHTML = `
+                <div class="item-card" style="cursor: default;">
+                    ${buildCardElementHtml(card, true)}
+                </div>
+            `;
 
             openModal('card-info-modal');
         }
