@@ -87,7 +87,7 @@
             outline: none;
             font-size: 14px;
             transition: var(--transition);
-			height: 38px;
+            height: 38px;
         }
 
         select:focus, input[type="text"]:focus, input[type="date"]:focus, textarea:focus {
@@ -708,6 +708,11 @@
             transition: var(--transition);
         }
 
+        .schedule-date-item.drag-over-date {
+            border: 2px dashed var(--primary-color) !important;
+            background-color: var(--surface-hover);
+        }
+
         .schedule-date-item.highlighted {
             border-color: var(--highlight-color);
             box-shadow: 0 0 12px var(--highlight-color);
@@ -777,6 +782,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            min-height: 20px;
         }
 
         .schedule-section-item {
@@ -785,6 +791,10 @@
             background-color: var(--bg-color);
             overflow: hidden;
             cursor: grab;
+        }
+
+        .schedule-section-item.drag-over-section {
+            border: 2px dashed var(--primary-color) !important;
         }
 
         .schedule-section-item:active {
@@ -807,6 +817,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            min-height: 30px;
         }
 
         .empty-text {
@@ -827,6 +838,17 @@
             cursor: grab;
             transition: var(--transition);
             user-select: none;
+            gap: 10px;
+        }
+
+        .schedule-card-bar.completed {
+            opacity: 0.65;
+            background-color: var(--surface-hover);
+        }
+
+        .schedule-card-bar.completed .card-name {
+            text-decoration: line-through;
+            color: var(--text-muted);
         }
 
         .schedule-card-bar:active {
@@ -835,6 +857,20 @@
 
         .schedule-card-bar:hover {
             border-color: var(--primary-color);
+        }
+
+        .schedule-card-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .card-completion-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary-color);
         }
 
         .schedule-card-bar .card-name {
@@ -1176,7 +1212,7 @@
                 <div class="form-group">
                     <label data-i18n="lbl_section_name">Section Name *</label>
                     <div class="input-clear-wrapper">
-                        <input type="text" id="schedule-section-name-input" placeholder="e.g. Breakfast" oninput="toggleInputClearBtn(this)">
+                        <input type="text" id="schedule-section-name-input" placeholder="e.g. Breakfast" oninput="toggleInputClearBtn(this)" data-i18n-ph="ph_section_name">
                         <button class="clear-input-btn" onclick="clearWrapperInput(this)">&times;</button>
                     </div>
                 </div>
@@ -1471,7 +1507,7 @@
                 msg_empty_name: "Please enter a card name.",
                 msg_empty_tag_key: "Please enter a Tag Key Name.",
                 opt_add_section: "Add Section",
-                opt_import_tag_values: "Add Sections via Tags",
+                opt_import_tag_values: "Add Section via Tags",
                 opt_copy_to_date_range: "Copy to Date Range",
                 opt_remove: "Remove",
                 opt_add_cards: "Add Cards",
@@ -1482,6 +1518,7 @@
                 prompt_remove_date: "Are you sure you want to remove schedule for {date}?",
                 prompt_remove_section: "Are you sure you want to remove section \"{section}\" from {date}?",
                 lbl_section_name: "Section Name *",
+                ph_section_name: "e.g. Breakfast",
                 lbl_start_date: "Start Date",
                 lbl_end_date: "End Date",
                 lbl_include_cards: "Include Cards",
@@ -1489,7 +1526,7 @@
                 msg_select_overwrite: "Select which existing schedule dates should be overwritten:",
                 modal_title_add_section: "Add Section",
                 modal_title_rename_section: "Rename Section",
-                modal_title_import_tag_values: "Add Sections via Tags",
+                modal_title_import_tag_values: "Add Section via Tags",
                 modal_title_copy_to_date_range: "Copy to Date Range",
                 modal_title_add_cards: "Add Cards"
             },
@@ -1566,6 +1603,7 @@
                 prompt_remove_date: "क्या आप निश्चित रूप से {date} की अनुसूची हटाना चाहते हैं?",
                 prompt_remove_section: "क्या आप निश्चित रूप से {date} से अनुभाग \"{section}\" हटाना चाहते हैं?",
                 lbl_section_name: "अनुभाग नाम *",
+                ph_section_name: "उदा. नाश्ता",
                 lbl_start_date: "प्रारंभिक तिथि",
                 lbl_end_date: "अंतिम तिथि",
                 lbl_include_cards: "कार्ड शामिल करें",
@@ -1587,7 +1625,7 @@
             },
             tags: {},
             cards: [],
-            schedule: {} // Structure: { "YYYY-MM-DD": { collapsed: bool, sections: [ { id, name, collapsed: bool, cards: [cardId1, cardId2] } ] } }
+            schedule: {} // Structure: { "YYYY-MM-DD": { collapsed: bool, sections: [ { id, name, collapsed: bool, cards: [ { id: cardId, completed: bool } | cardId ] } ] } }
         };
 
         let currentThemeMode = localStorage.getItem('app_theme_mode') || 'system';
@@ -1624,9 +1662,11 @@
         let copyPendingConfig = null;
 
         // Drag and Drop reorder state
+        let dragItemType = null; // 'card' or 'section'
         let draggedCardIndex = null;
         let dragSourceDateIso = null;
         let dragSourceSectionId = null;
+
         let dragSourceSectionDateIso = null;
         let dragSourceSectionIdValue = null;
 
@@ -1636,6 +1676,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadStateFromStorage();
+            normalizeScheduleData();
             applyLanguage();
             applyTheme();
             initTopScheduleDateBox();
@@ -1644,6 +1685,27 @@
 
         function saveStateToStorage() {
             localStorage.setItem('card_app_state', JSON.stringify(appState));
+        }
+
+        function normalizeScheduleData() {
+            if (!appState.schedule) return;
+            Object.keys(appState.schedule).forEach(dateIso => {
+                const dateData = appState.schedule[dateIso];
+                if (dateData && Array.isArray(dateData.sections)) {
+                    dateData.sections.forEach(sec => {
+                        if (Array.isArray(sec.cards)) {
+                            sec.cards = sec.cards.map(c => {
+                                if (typeof c === 'string') {
+                                    return { id: c, completed: false };
+                                }
+                                return { id: c.id, completed: !!c.completed };
+                            });
+                        } else {
+                            sec.cards = [];
+                        }
+                    });
+                }
+            });
         }
 
         function loadStateFromStorage() {
@@ -2334,7 +2396,7 @@
             
             Object.keys(appState.schedule).forEach(dateIso => {
                 appState.schedule[dateIso].sections.forEach(sec => {
-                    sec.cards = sec.cards.filter(id => id !== cardId);
+                    sec.cards = sec.cards.filter(c => (typeof c === 'string' ? c : c.id) !== cardId);
                 });
             });
 
@@ -2675,6 +2737,21 @@
             }, 2000);
         }
 
+        function toggleCardCompletionStatus(dateIso, secId, cardIndex, event) {
+            if (event) event.stopPropagation();
+            const sec = appState.schedule[dateIso]?.sections.find(s => s.id === secId);
+            if (sec && sec.cards[cardIndex]) {
+                const item = sec.cards[cardIndex];
+                if (typeof item === 'string') {
+                    sec.cards[cardIndex] = { id: item, completed: true };
+                } else {
+                    item.completed = !item.completed;
+                }
+                saveStateToStorage();
+                renderScheduleList();
+            }
+        }
+
         function renderScheduleList() {
             updateTopScheduleDateActionButtonUI();
             const container = document.getElementById('schedule-list');
@@ -2688,6 +2765,11 @@
                 const dateEl = document.createElement('div');
                 dateEl.className = 'schedule-date-item';
                 dateEl.id = `schedule-date-card-${dateIso}`;
+                
+                // Allow dropping sections or cards directly onto the date block
+                dateEl.ondragover = (e) => handleDateDragOver(e, dateIso);
+                dateEl.ondragleave = (e) => handleDateDragLeave(e, dateIso);
+                dateEl.ondrop = (e) => handleDateDrop(e, dateIso);
 
                 const dateFormattedStr = formatDateDisplay(dateIso);
 
@@ -2702,17 +2784,26 @@
                                 if (!sec.cards || sec.cards.length === 0) {
                                     cardsHtml = `<div class="empty-text">${dict.msg_empty_schedule_section}</div>`;
                                 } else {
-                                    cardsHtml = sec.cards.map((cardId, cardIndex) => {
+                                    cardsHtml = sec.cards.map((cardObj, cardIndex) => {
+                                        const cardId = typeof cardObj === 'string' ? cardObj : cardObj.id;
+                                        const isCompleted = typeof cardObj === 'object' && !!cardObj.completed;
+
                                         const card = appState.cards.find(c => c.id === cardId);
                                         const cardTitle = card ? card.name : 'Unknown Card';
                                         return `
-                                            <div class="schedule-card-bar" 
+                                            <div class="schedule-card-bar ${isCompleted ? 'completed' : ''}" 
                                                  draggable="true" 
                                                  ondragstart="handleCardDragStart(event, '${dateIso}', '${sec.id}', ${cardIndex})"
                                                  ondragover="handleCardDragOver(event)"
                                                  ondrop="handleCardDrop(event, '${dateIso}', '${sec.id}', ${cardIndex})"
                                                  onclick="openCardInfoModal('${cardId}')">
-                                                <span class="card-name">${cardTitle}</span>
+                                                <div class="schedule-card-left">
+                                                    <input type="checkbox" class="card-completion-checkbox" 
+                                                           ${isCompleted ? 'checked' : ''} 
+                                                           onclick="toggleCardCompletionStatus('${dateIso}', '${sec.id}', ${cardIndex}, event)"
+                                                           title="Toggle Completion">
+                                                    <span class="card-name">${cardTitle}</span>
+                                                </div>
                                                 <button class="no-bg-btn" style="color:var(--text-muted); font-size:18px;" onclick="event.stopPropagation(); removeCardFromSection('${dateIso}', '${sec.id}', ${cardIndex})" title="Remove Card">&times;</button>
                                             </div>
                                         `;
@@ -2722,9 +2813,11 @@
 
                             return `
                                 <div class="schedule-section-item" 
+                                     id="sec-item-${dateIso}-${sec.id}"
                                      draggable="true" 
                                      ondragstart="handleSectionDragStart(event, '${dateIso}', '${sec.id}')"
-                                     ondragover="handleSectionDragOver(event)"
+                                     ondragover="handleSectionDragOver(event, '${dateIso}', '${sec.id}')"
+                                     ondragleave="handleSectionDragLeave(event, '${dateIso}', '${sec.id}')"
                                      ondrop="handleSectionDrop(event, '${dateIso}', '${sec.id}')">
                                     <div class="schedule-section-header" onclick="toggleSectionCollapse('${dateIso}', '${sec.id}')">
                                         <div class="schedule-header-left">
@@ -2736,7 +2829,12 @@
                                             <button class="no-bg-btn dots-icon" onclick="openSectionDrawer('${dateIso}', '${sec.id}')" title="Options">&#8942;</button>
                                         </div>
                                     </div>
-                                    ${!sec.collapsed ? `<div class="schedule-section-body">${cardsHtml}</div>` : ''}
+                                    ${!sec.collapsed ? `
+                                        <div class="schedule-section-body"
+                                             ondragover="handleSectionBodyDragOver(event)"
+                                             ondrop="handleSectionBodyDrop(event, '${dateIso}', '${sec.id}')">
+                                            ${cardsHtml}
+                                        </div>` : ''}
                                 </div>
                             `;
                         }).join('');
@@ -2782,19 +2880,23 @@
 
         // --- DRAG AND DROP REORDERING ---
         function handleCardDragStart(e, dateIso, secId, index) {
+            dragItemType = 'card';
             dragSourceDateIso = dateIso;
             dragSourceSectionId = secId;
             draggedCardIndex = index;
             e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', 'card');
             e.stopPropagation();
         }
 
         function handleCardDragOver(e) {
+            if (dragItemType !== 'card') return;
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
         }
 
         function handleCardDrop(e, targetDateIso, targetSecId, targetIndex) {
+            if (dragItemType !== 'card') return;
             e.preventDefault();
             e.stopPropagation();
 
@@ -2802,40 +2904,74 @@
                 const sourceSec = appState.schedule[dragSourceDateIso]?.sections.find(s => s.id === dragSourceSectionId);
                 const targetSec = appState.schedule[targetDateIso]?.sections.find(s => s.id === targetSecId);
                 if (sourceSec && targetSec) {
-                    const movedCardId = sourceSec.cards.splice(draggedCardIndex, 1)[0];
+                    const movedCardObj = sourceSec.cards.splice(draggedCardIndex, 1)[0];
                     if (dragSourceDateIso === targetDateIso && dragSourceSectionId === targetSecId) {
                         if (targetIndex >= 0 && targetIndex <= targetSec.cards.length) {
-                            targetSec.cards.splice(targetIndex, 0, movedCardId);
+                            targetSec.cards.splice(targetIndex, 0, movedCardObj);
                         } else {
-                            targetSec.cards.push(movedCardId);
+                            targetSec.cards.push(movedCardObj);
                         }
                     } else {
-                        targetSec.cards.splice(targetIndex, 0, movedCardId);
+                        targetSec.cards.splice(targetIndex, 0, movedCardObj);
                     }
                     saveStateToStorage();
                     renderScheduleList();
                 }
             }
-            draggedCardIndex = null;
-            dragSourceDateIso = null;
-            dragSourceSectionId = null;
+            resetDragState();
         }
 
-        function handleSectionDragStart(e, dateIso, secId) {
-            dragSourceSectionDateIso = dateIso;
-            dragSourceSectionIdValue = secId;
-            e.dataTransfer.effectAllowed = 'move';
-            e.stopPropagation();
-        }
-
-        function handleSectionDragOver(e) {
+        function handleSectionBodyDragOver(e) {
+            if (dragItemType !== 'card') return;
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
         }
 
-        function handleSectionDrop(e, targetDateIso, targetSecId) {
+        function handleSectionBodyDrop(e, targetDateIso, targetSecId) {
+            if (dragItemType !== 'card') return;
             e.preventDefault();
             e.stopPropagation();
+
+            const sourceSec = appState.schedule[dragSourceDateIso]?.sections.find(s => s.id === dragSourceSectionId);
+            const targetSec = appState.schedule[targetDateIso]?.sections.find(s => s.id === targetSecId);
+            if (sourceSec && targetSec) {
+                const movedCardObj = sourceSec.cards.splice(draggedCardIndex, 1)[0];
+                targetSec.cards.push(movedCardObj);
+                saveStateToStorage();
+                renderScheduleList();
+            }
+            resetDragState();
+        }
+
+        function handleSectionDragStart(e, dateIso, secId) {
+            dragItemType = 'section';
+            dragSourceSectionDateIso = dateIso;
+            dragSourceSectionIdValue = secId;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', 'section');
+            e.stopPropagation();
+        }
+
+        function handleSectionDragOver(e, dateIso, secId) {
+            if (dragItemType !== 'section') return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const el = document.getElementById(`sec-item-${dateIso}-${secId}`);
+            if (el) el.classList.add('drag-over-section');
+        }
+
+        function handleSectionDragLeave(e, dateIso, secId) {
+            const el = document.getElementById(`sec-item-${dateIso}-${secId}`);
+            if (el) el.classList.remove('drag-over-section');
+        }
+
+        function handleSectionDrop(e, targetDateIso, targetSecId) {
+            if (dragItemType !== 'section') return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const el = document.getElementById(`sec-item-${targetDateIso}-${targetSecId}`);
+            if (el) el.classList.remove('drag-over-section');
 
             if (dragSourceSectionDateIso && dragSourceSectionIdValue) {
                 const sourceDateData = appState.schedule[dragSourceSectionDateIso];
@@ -2855,6 +2991,52 @@
                     }
                 }
             }
+            resetDragState();
+        }
+
+        function handleDateDragOver(e, dateIso) {
+            if (dragItemType !== 'section' && dragItemType !== 'card') return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const el = document.getElementById(`schedule-date-card-${dateIso}`);
+            if (el) el.classList.add('drag-over-date');
+        }
+
+        function handleDateDragLeave(e, dateIso) {
+            const el = document.getElementById(`schedule-date-card-${dateIso}`);
+            if (el) el.classList.remove('drag-over-date');
+        }
+
+        function handleDateDrop(e, targetDateIso) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const el = document.getElementById(`schedule-date-card-${targetDateIso}`);
+            if (el) el.classList.remove('drag-over-date');
+
+            if (dragItemType === 'section' && dragSourceSectionDateIso && dragSourceSectionIdValue) {
+                if (dragSourceSectionDateIso !== targetDateIso) {
+                    const sourceData = appState.schedule[dragSourceSectionDateIso];
+                    const targetData = appState.schedule[targetDateIso];
+                    if (sourceData && targetData) {
+                        const idx = sourceData.sections.findIndex(s => s.id === dragSourceSectionIdValue);
+                        if (idx !== -1) {
+                            const movedSec = sourceData.sections.splice(idx, 1)[0];
+                            targetData.sections.push(movedSec);
+                            saveStateToStorage();
+                            renderScheduleList();
+                        }
+                    }
+                }
+            }
+            resetDragState();
+        }
+
+        function resetDragState() {
+            dragItemType = null;
+            draggedCardIndex = null;
+            dragSourceDateIso = null;
+            dragSourceSectionId = null;
             dragSourceSectionDateIso = null;
             dragSourceSectionIdValue = null;
         }
@@ -3222,7 +3404,10 @@
                     id: 'sec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                     name: sec.name,
                     collapsed: sec.collapsed,
-                    cards: copyPendingConfig.includeCards ? [...sec.cards] : []
+                    cards: copyPendingConfig.includeCards ? sec.cards.map(c => ({
+                        id: typeof c === 'string' ? c : c.id,
+                        completed: false
+                    })) : []
                 }));
 
                 appState.schedule[dateIso] = {
@@ -3251,7 +3436,7 @@
             searchInput.value = '';
             toggleInputClearBtn(searchInput);
 
-            addCardsSelectedIds = sec ? [...sec.cards] : [];
+            addCardsSelectedIds = sec ? sec.cards.map(c => typeof c === 'string' ? c : c.id) : [];
             addCardsAppliedFilters = {};
 
             updateAddCardsFilterButtonUI();
@@ -3476,7 +3661,19 @@
         function saveAddCardsToSection() {
             const sec = appState.schedule[currentEditingDateIso]?.sections.find(s => s.id === currentEditingSectionId);
             if (sec) {
-                sec.cards = [...addCardsSelectedIds];
+                const existingCardsMap = new Map();
+                sec.cards.forEach(c => {
+                    if (typeof c === 'object') {
+                        existingCardsMap.set(c.id, c.completed);
+                    } else {
+                        existingCardsMap.set(c, false);
+                    }
+                });
+
+                sec.cards = addCardsSelectedIds.map(id => ({
+                    id,
+                    completed: existingCardsMap.get(id) || false
+                }));
                 saveStateToStorage();
                 renderScheduleList();
             }
@@ -3555,6 +3752,7 @@
                     if (!appState.cards) appState.cards = [];
                     if (!appState.schedule) appState.schedule = {};
 
+                    normalizeScheduleData();
                     saveStateToStorage();
                     applyLanguage();
                     applyTheme();
