@@ -705,7 +705,6 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             margin-bottom: 12px;
-            overflow: hidden;
             transition: var(--transition);
         }
 
@@ -723,6 +722,10 @@
             cursor: pointer;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            position: sticky;
+            top: 102px;
+            z-index: 85;
+            border-radius: 8px;
         }
 
         .schedule-header-left {
@@ -781,6 +784,11 @@
             border-radius: 6px;
             background-color: var(--bg-color);
             overflow: hidden;
+            cursor: grab;
+        }
+
+        .schedule-section-item:active {
+            cursor: grabbing;
         }
 
         .schedule-section-header {
@@ -1179,12 +1187,12 @@
         </div>
     </div>
 
-    <!-- IMPORT TAGS AS SECTIONS MODAL -->
+    <!-- IMPORT TAG VALUES MODAL -->
     <div id="import-tags-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="header-title-box">
-                    <h3 id="import-tags-modal-heading" data-i18n="modal_title_import_tags">Import Tags as Sections</h3>
+                    <h3 id="import-tags-modal-heading" data-i18n="modal_title_import_tag_values">Import Tag Values</h3>
                     <div id="import-tags-modal-subtext" class="modal-subtext"></div>
                 </div>
                 <button class="icon-btn close-btn" onclick="closeModal('import-tags-modal')">&times;</button>
@@ -1196,20 +1204,22 @@
                         <button class="clear-input-btn" onclick="clearWrapperInput(this); renderImportTagList();">&times;</button>
                     </div>
                 </div>
-                <div id="import-tag-list-container" class="cards-container" style="max-height: 250px; overflow-y: auto;"></div>
+                <div id="import-selected-values-cloud" class="tag-values-cloud" style="margin-bottom: 10px;"></div>
+                <div id="import-tag-list-container" class="cards-container" style="max-height: 220px; overflow-y: auto;"></div>
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="closeModal('import-tags-modal')" data-i18n="btn_cancel">Cancel</button>
+                <button class="btn btn-primary" onclick="proceedImportTagValues()" data-i18n="btn_import">Import</button>
             </div>
         </div>
     </div>
 
-    <!-- COPY TO DATES MODAL -->
+    <!-- COPY TO DATE RANGE MODAL -->
     <div id="copy-dates-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="header-title-box">
-                    <h3 id="copy-dates-modal-heading" data-i18n="modal_title_copy_to_dates">Copy to Dates</h3>
+                    <h3 id="copy-dates-modal-heading" data-i18n="modal_title_copy_to_date_range">Copy to Date Range</h3>
                     <div id="copy-dates-modal-subtext" class="modal-subtext"></div>
                 </div>
                 <button class="icon-btn close-btn" onclick="closeModal('copy-dates-modal')">&times;</button>
@@ -1454,19 +1464,18 @@
                 btn_close: "Close",
                 btn_confirm: "Confirm & Copy",
                 btn_copy_schedule: "Copy Schedule",
+                btn_import: "Import",
                 lbl_select_all: "Select All",
                 msg_copied: "Copied to clipboard!",
                 msg_invalid_json: "Invalid JSON provided!",
                 msg_empty_name: "Please enter a card name.",
                 msg_empty_tag_key: "Please enter a Tag Key Name.",
                 opt_add_section: "Add Section",
-                opt_import_tags: "Import Tags",
-                opt_copy_to_dates: "Copy to Dates",
+                opt_import_tag_values: "Add Sections via Tags",
+                opt_copy_to_date_range: "Copy to Date Range",
                 opt_remove: "Remove",
                 opt_add_cards: "Add Cards",
-                opt_rename: "Rename Section",
-                opt_move_up: "Move Up",
-                opt_move_down: "Move Down",
+                opt_rename: "Rename",
                 msg_empty_schedule_date: "No sections added yet",
                 msg_empty_schedule_section: "No cards added yet",
                 msg_date_not_found: "Date {date} does not exist in the schedule list",
@@ -1480,8 +1489,8 @@
                 msg_select_overwrite: "Select which existing schedule dates should be overwritten:",
                 modal_title_add_section: "Add Section",
                 modal_title_rename_section: "Rename Section",
-                modal_title_import_tags: "Import Tags",
-                modal_title_copy_to_dates: "Copy to Dates",
+                modal_title_import_tag_values: "Add Sections via Tags",
+                modal_title_copy_to_date_range: "Copy to Date Range",
                 modal_title_add_cards: "Add Cards"
             },
             hindi: {
@@ -1539,19 +1548,18 @@
                 btn_close: "बंद करें",
                 btn_confirm: "पुष्टि करें और अनुसूची कॉपी करें",
                 btn_copy_schedule: "अनुसूची कॉपी करें",
+                btn_import: "आयात करें",
                 lbl_select_all: "सभी चुनें",
                 msg_copied: "क्लिपबोर्ड पर कॉपी हो गया!",
                 msg_invalid_json: "अमान्य JSON प्रदान किया गया!",
                 msg_empty_name: "कृपया कार्ड का नाम दर्ज करें।",
                 msg_empty_tag_key: "कृपया टैग कुंजी नाम दर्ज करें।",
                 opt_add_section: "अनुभाग जोड़ें",
-                opt_import_tags: "टैग आयात करें",
-                opt_copy_to_dates: "तारीखों में कॉपी करें",
+                opt_import_tag_values: "टैग्स द्वारा अनुभाग जोड़ें",
+                opt_copy_to_date_range: "दिनांक सीमा में कॉपी करें",
                 opt_remove: "हटाएं",
                 opt_add_cards: "कार्ड जोड़ें",
-                opt_rename: "अनुभाग का नाम बदलें",
-                opt_move_up: "ऊपर ले जाएं",
-                opt_move_down: "नीचे ले जाएं",
+                opt_rename: "नाम बदलें",
                 msg_empty_schedule_date: "अभी तक कोई अनुभाग नहीं जोड़ा गया",
                 msg_empty_schedule_section: "अभी तक कोई कार्ड नहीं जोड़ा गया",
                 msg_date_not_found: "तारीख {date} अनुसूची सूची में मौजूद नहीं है",
@@ -1565,8 +1573,8 @@
                 msg_select_overwrite: "चुनें कि कौन सी मौजूदा अनुसूची तिथियों को ओवरराइट किया जाना चाहिए:",
                 modal_title_add_section: "अनुभाग जोड़ें",
                 modal_title_rename_section: "अनुभाग का नाम बदलें",
-                modal_title_import_tags: "टैग आयात करें",
-                modal_title_copy_to_dates: "तारीखों में कॉपी करें",
+                modal_title_import_tag_values: "टैग्स द्वारा अनुभाग जोड़ें",
+                modal_title_copy_to_date_range: "दिनांक सीमा में कॉपी करें",
                 modal_title_add_cards: "कार्ड जोड़ें"
             }
         };
@@ -1605,6 +1613,8 @@
         let currentEditingSectionId = null;
         let currentEditingDateIso = null;
 
+        let importSelectedTagValues = [];
+
         let addCardsSelectedIds = [];
         let addCardsAppliedFilters = {};
         let addCardsFilterBuffer = {};
@@ -1617,6 +1627,8 @@
         let draggedCardIndex = null;
         let dragSourceDateIso = null;
         let dragSourceSectionId = null;
+        let dragSourceSectionDateIso = null;
+        let dragSourceSectionIdValue = null;
 
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
             if (currentThemeMode === 'system') applyTheme();
@@ -2709,7 +2721,11 @@
                             }
 
                             return `
-                                <div class="schedule-section-item">
+                                <div class="schedule-section-item" 
+                                     draggable="true" 
+                                     ondragstart="handleSectionDragStart(event, '${dateIso}', '${sec.id}')"
+                                     ondragover="handleSectionDragOver(event)"
+                                     ondrop="handleSectionDrop(event, '${dateIso}', '${sec.id}')">
                                     <div class="schedule-section-header" onclick="toggleSectionCollapse('${dateIso}', '${sec.id}')">
                                         <div class="schedule-header-left">
                                             <span>${sec.collapsed ? '▶' : '▼'}</span>
@@ -2770,6 +2786,7 @@
             dragSourceSectionId = secId;
             draggedCardIndex = index;
             e.dataTransfer.effectAllowed = 'move';
+            e.stopPropagation();
         }
 
         function handleCardDragOver(e) {
@@ -2781,11 +2798,20 @@
             e.preventDefault();
             e.stopPropagation();
 
-            if (dragSourceDateIso === targetDateIso && dragSourceSectionId === targetSecId) {
-                const sec = appState.schedule[targetDateIso].sections.find(s => s.id === targetSecId);
-                if (sec && draggedCardIndex !== null && draggedCardIndex !== targetIndex) {
-                    const movedCard = sec.cards.splice(draggedCardIndex, 1)[0];
-                    sec.cards.splice(targetIndex, 0, movedCard);
+            if (dragSourceDateIso && dragSourceSectionId !== null && draggedCardIndex !== null) {
+                const sourceSec = appState.schedule[dragSourceDateIso]?.sections.find(s => s.id === dragSourceSectionId);
+                const targetSec = appState.schedule[targetDateIso]?.sections.find(s => s.id === targetSecId);
+                if (sourceSec && targetSec) {
+                    const movedCardId = sourceSec.cards.splice(draggedCardIndex, 1)[0];
+                    if (dragSourceDateIso === targetDateIso && dragSourceSectionId === targetSecId) {
+                        if (targetIndex >= 0 && targetIndex <= targetSec.cards.length) {
+                            targetSec.cards.splice(targetIndex, 0, movedCardId);
+                        } else {
+                            targetSec.cards.push(movedCardId);
+                        }
+                    } else {
+                        targetSec.cards.splice(targetIndex, 0, movedCardId);
+                    }
                     saveStateToStorage();
                     renderScheduleList();
                 }
@@ -2793,6 +2819,44 @@
             draggedCardIndex = null;
             dragSourceDateIso = null;
             dragSourceSectionId = null;
+        }
+
+        function handleSectionDragStart(e, dateIso, secId) {
+            dragSourceSectionDateIso = dateIso;
+            dragSourceSectionIdValue = secId;
+            e.dataTransfer.effectAllowed = 'move';
+            e.stopPropagation();
+        }
+
+        function handleSectionDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleSectionDrop(e, targetDateIso, targetSecId) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (dragSourceSectionDateIso && dragSourceSectionIdValue) {
+                const sourceDateData = appState.schedule[dragSourceSectionDateIso];
+                const targetDateData = appState.schedule[targetDateIso];
+                if (sourceDateData && targetDateData) {
+                    const sourceSecIndex = sourceDateData.sections.findIndex(s => s.id === dragSourceSectionIdValue);
+                    if (sourceSecIndex !== -1) {
+                        const movedSec = sourceDateData.sections.splice(sourceSecIndex, 1)[0];
+                        const targetSecIndex = targetDateData.sections.findIndex(s => s.id === targetSecId);
+                        if (targetSecIndex !== -1) {
+                            targetDateData.sections.splice(targetSecIndex, 0, movedSec);
+                        } else {
+                            targetDateData.sections.push(movedSec);
+                        }
+                        saveStateToStorage();
+                        renderScheduleList();
+                    }
+                }
+            }
+            dragSourceSectionDateIso = null;
+            dragSourceSectionIdValue = null;
         }
 
         function removeCardFromSection(dateIso, secId, cardIndex) {
@@ -2814,8 +2878,8 @@
 
             const optionsContainer = document.getElementById('bottom-drawer-options');
             optionsContainer.innerHTML = `
-                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('import_tags')">${dict.opt_import_tags}</button>
-                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('copy_to_dates')">${dict.opt_copy_to_dates}</button>
+                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('import_tags')">${dict.opt_import_tag_values}</button>
+                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('copy_to_dates')">${dict.opt_copy_to_date_range}</button>
                 <button class="bottom-drawer-btn" style="color:var(--error-color);" onclick="triggerDrawerOption('remove_date')">${dict.opt_remove}</button>
             `;
 
@@ -2834,8 +2898,7 @@
             const optionsContainer = document.getElementById('bottom-drawer-options');
             optionsContainer.innerHTML = `
                 <button class="bottom-drawer-btn" onclick="triggerDrawerOption('rename_section')">${dict.opt_rename}</button>
-                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('move_up_section')">${dict.opt_move_up}</button>
-                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('move_down_section')">${dict.opt_move_down}</button>
+                <button class="bottom-drawer-btn" onclick="triggerDrawerOption('copy_to_dates')">${dict.opt_copy_to_date_range}</button>
                 <button class="bottom-drawer-btn" style="color:var(--error-color);" onclick="triggerDrawerOption('remove_section')">${dict.opt_remove}</button>
             `;
 
@@ -2863,10 +2926,6 @@
                 }
             } else if (actionKey === 'rename_section') {
                 openRenameSectionModal(dateIso, secId);
-            } else if (actionKey === 'move_up_section') {
-                moveSection(dateIso, secId, -1);
-            } else if (actionKey === 'move_down_section') {
-                moveSection(dateIso, secId, 1);
             } else if (actionKey === 'remove_section') {
                 const sec = appState.schedule[dateIso]?.sections.find(s => s.id === secId);
                 const formattedDate = formatDateDisplay(dateIso);
@@ -2875,21 +2934,6 @@
                     saveStateToStorage();
                     renderScheduleList();
                 }
-            }
-        }
-
-        function moveSection(dateIso, secId, delta) {
-            const sections = appState.schedule[dateIso]?.sections;
-            if (!sections) return;
-            const idx = sections.findIndex(s => s.id === secId);
-            if (idx === -1) return;
-
-            const targetIdx = idx + delta;
-            if (targetIdx >= 0 && targetIdx < sections.length) {
-                const item = sections.splice(idx, 1)[0];
-                sections.splice(targetIdx, 0, item);
-                saveStateToStorage();
-                renderScheduleList();
             }
         }
 
@@ -2946,17 +2990,19 @@
             renderScheduleList();
         }
 
-        // --- IMPORT TAGS AS SECTIONS MODAL ---
+        // --- IMPORT TAG VALUES MODAL ---
         function openImportTagsModal(dateIso) {
             currentEditingDateIso = dateIso;
+            importSelectedTagValues = [];
             const dict = i18nData[appState.defaults.language] || i18nData.english;
-            document.getElementById('import-tags-modal-heading').textContent = dict.modal_title_import_tags;
+            document.getElementById('import-tags-modal-heading').textContent = dict.modal_title_import_tag_values;
             document.getElementById('import-tags-modal-subtext').textContent = `${dict.nav_schedule} > ${formatDateDisplay(dateIso)}`;
 
             const searchInput = document.getElementById('import-tag-search-input');
             searchInput.value = '';
             toggleInputClearBtn(searchInput);
 
+            renderImportSelectedValuesCloud();
             renderImportTagList();
             openModal('import-tags-modal');
         }
@@ -2964,6 +3010,34 @@
         function handleImportTagSearchInput(inputEl) {
             toggleInputClearBtn(inputEl);
             renderImportTagList();
+        }
+
+        function toggleImportTagValueSelection(key, val) {
+            const index = importSelectedTagValues.findIndex(item => item.key === key && item.value === val);
+            if (index !== -1) {
+                importSelectedTagValues.splice(index, 1);
+            } else {
+                importSelectedTagValues.push({ key, value: val });
+            }
+            renderImportSelectedValuesCloud();
+            renderImportTagList();
+        }
+
+        function removeImportTagValue(key, val) {
+            importSelectedTagValues = importSelectedTagValues.filter(item => !(item.key === key && item.value === val));
+            renderImportSelectedValuesCloud();
+            renderImportTagList();
+        }
+
+        function renderImportSelectedValuesCloud() {
+            const container = document.getElementById('import-selected-values-cloud');
+            if (!container) return;
+            container.innerHTML = importSelectedTagValues.map(item => `
+                <span class="chip selected">
+                    <strong>${item.key}:</strong> ${item.value}
+                    <span class="remove-btn" onclick="event.stopPropagation(); removeImportTagValue('${item.key}', '${item.value}')">&times;</span>
+                </span>
+            `).join('');
         }
 
         function renderImportTagList() {
@@ -2979,24 +3053,29 @@
                 if (!query || matchesKey || matchesVal) {
                     const card = document.createElement('div');
                     card.className = 'item-card';
-                    card.onclick = () => importTagAsSection(key);
+                    card.style.cursor = 'default';
+
+                    const valuesHtml = tag.values.map(v => {
+                        const isSelected = importSelectedTagValues.some(item => item.key === key && item.value === v);
+                        return `<span class="chip chip-selectable ${isSelected ? 'selected' : ''}" onclick="toggleImportTagValueSelection('${key}', '${v}')">${v}</span>`;
+                    }).join('');
 
                     card.innerHTML = `
                         <div class="item-card-header">
                             <span class="item-card-title">${key}</span>
                         </div>
-                        <div class="item-card-tags">
-                            ${tag.values.map(v => `<span class="tag-badge">${v}</span>`).join('')}
-                        </div>
+                        <div class="item-card-tags">${valuesHtml}</div>
                     `;
                     container.appendChild(card);
                 }
             });
         }
 
-        function importTagAsSection(tagKey) {
-            const tagDef = appState.tags[tagKey];
-            if (!tagDef) return;
+        function proceedImportTagValues() {
+            if (importSelectedTagValues.length === 0) {
+                closeModal('import-tags-modal');
+                return;
+            }
 
             if (!appState.schedule[currentEditingDateIso]) {
                 appState.schedule[currentEditingDateIso] = { collapsed: false, sections: [] };
@@ -3004,8 +3083,8 @@
 
             const targetDate = appState.schedule[currentEditingDateIso];
 
-            tagDef.values.forEach(val => {
-                const sectionName = val;
+            importSelectedTagValues.forEach(item => {
+                const sectionName = item.value;
                 const existingSec = targetDate.sections.find(s => s.name === sectionName);
                 if (!existingSec) {
                     targetDate.sections.push({
@@ -3022,11 +3101,11 @@
             renderScheduleList();
         }
 
-        // --- COPY TO DATES MODAL ---
+        // --- COPY TO DATE RANGE MODAL ---
         function openCopyToDatesModal(sourceDateIso) {
             currentEditingDateIso = sourceDateIso;
             const dict = i18nData[appState.defaults.language] || i18nData.english;
-            document.getElementById('copy-dates-modal-heading').textContent = dict.modal_title_copy_to_dates;
+            document.getElementById('copy-dates-modal-heading').textContent = dict.modal_title_copy_to_date_range;
             document.getElementById('copy-dates-modal-subtext').textContent = `${dict.nav_schedule} > ${formatDateDisplay(sourceDateIso)}`;
 
             document.getElementById('copy-start-date').value = sourceDateIso;
